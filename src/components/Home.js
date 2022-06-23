@@ -1,9 +1,11 @@
 import React, {useState, useEffect} from 'react'
-import { Box, makeStyles, InputLabel, MenuItem, FormControl, Select, Typography } from '@material-ui/core'
-import {  getVenues } from '../services/api';
+import { Box, makeStyles, InputLabel, MenuItem, FormControl, Select, Typography, AppBar, Toolbar, TextField } from '@material-ui/core'
+import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete';
+import {  getVenues, getRoomsData, getBuildingData } from '../services/api';
 
 //components
 import GlobalView from './GlobalView';
+import Lift from './Lift'
 
 const useStyles = makeStyles((theme) => ({
     button: {
@@ -29,16 +31,40 @@ const useStyles = makeStyles((theme) => ({
         width: '100%',
         display: 'flex',
         justifyContent: 'space-evenly',
-        zIndex: 999
+        zIndex: 999,
+        wrap: 'wrap'
+    },
+    inputBx: {
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        [theme.breakpoints.down('sm')]: {
+            flexDirection: 'column'
+        }
     },
     tag: {
         position: 'fixed',
-        top: '2%',
-        left: '28.5vw'
+        top: '3%',
+        left: '26vw',
+        color: '#000',
+        [theme.breakpoints.down('md')]: {
+            left: '22vw'
+        },
+        [theme.breakpoints.down('sm')]: {
+            left: '13vw',
+            top: '2.4%'
+        }
+    },
+    search: {
+        [theme.breakpoints.down('sm')]: {
+            marginTop: 10
+        },
     }
   }));
 
 const initialCords = [ 28.644800, 77.216721]
+const filter = createFilterOptions()
 const Home = () => {
 
     const classes = useStyles();
@@ -48,6 +74,10 @@ const Home = () => {
     const [venues, setVenues] = useState()
     const [building, setBuilding] = useState()
     const [coordinates, setCoordinates] = useState(initialCords)
+    const [floorplan, setFloorPlan] = useState()
+    const [value, setValue] = useState()
+    const [floor, setFloor] = useState('ground')
+    const [rooms, setRooms] = useState()
 
     useEffect(() => {
         const fetchVenues = async () => {
@@ -57,12 +87,24 @@ const Home = () => {
         fetchVenues()
     }, [coordinates])
 
+    /*const fetchBuildings = async (venue_name) => {
+        console.log(venue_name)
+        let response = await getBuildings(venue_name)
+        console.log(response)
+    }*/
+
     const handleChange = (event) => {
         setVenue(event.target.value)
         if(event.target.value.coordinates) setCoordinates([event.target.value.coordinates[0], event.target.value.coordinates[1]])
+        setFloorPlan(null)
+       // await fetchBuildings(event.target.value.venueName)
     };
-    const handleChangeBuilding = (event) => {
+    const handleChangeBuilding = async (event) => {
         setBuilding(event.target.value)
+        let response = await getBuildingData(venue.venueName, event.target.value, floor)
+        setFloorPlan(response)
+        response = await getRoomsData(venue.venueName, event.target.value, floor)
+        setRooms(response)
     }
 
     const handleCloseVenue = () => {
@@ -83,7 +125,10 @@ const Home = () => {
 
     return (
         <Box className={classes.component}>
-            <Box className={classes.container}>
+            <AppBar style={{background: '#36e0c2', opacity: '0.8', paddingBottom: 5}}>
+                <Toolbar>
+            <Box className={classes.inputBx} >
+                <Box className={classes.container}>
                 <FormControl className={classes.formControl}>
                     <InputLabel id="demo-controlled-open-select-label">Select Venue</InputLabel>
                     <Select
@@ -107,7 +152,7 @@ const Home = () => {
                 </FormControl>
                 <Typography className={classes.tag}>{venue.venueName || ""}</Typography>
                 {venue && <FormControl className={classes.formControl}>
-                    <InputLabel id="demo-controlled-open-select-label">Select Buildings</InputLabel>
+                    <InputLabel id="demo-controlled-open-select-label" color='#fff'>Select Buildings</InputLabel>
                     <Select
                     labelId="demo-controlled-open-select-label"
                     id="demo-controlled-open-select"
@@ -127,13 +172,92 @@ const Home = () => {
                     }
                     </Select>
                 </FormControl>}
+                </Box>
+                { venue && building && <Autocomplete
+                    className={classes.search}
+                    value={value}
+                    onChange={(event, newValue) => {
+                        if (typeof newValue === 'string') {
+                        setValue({
+                            title: newValue,
+                        });
+                        } else if (newValue && newValue.inputValue) {
+                        // Create a new value from the user input
+                        setValue({
+                            title: newValue.inputValue,
+                        });
+                        } else {
+                        setValue(newValue);
+                        }
+                    }}
+                    filterOptions={(options, params) => {
+                        const filtered = filter(options, params);
+
+                        // Suggest the creation of a new value
+                        if (params.inputValue !== '') {
+                        filtered.push({
+                            inputValue: params.inputValue,
+                            title: `Add "${params.inputValue}"`,
+                        });
+                        }
+
+                        return filtered;
+                    }}
+                    selectOnFocus
+                    clearOnBlur
+                    handleHomeEndKeys
+                    id="free-solo-with-text-demo"
+                    options={blocks}
+                    getOptionLabel={(option) => {
+                        // Value selected with enter, right from the input
+                        if (typeof option === 'string') {
+                        return option;
+                        }
+                        // Add "xxx" option created dynamically
+                        if (option.inputValue) {
+                        return option.inputValue;
+                        }
+                        // Regular option
+                        return option.title;
+                    }}
+                    renderOption={(option) => option.title}
+                    style={{ width: 300 }}
+                    freeSolo
+                    renderInput={(params) => (
+                        <TextField {...params} label="Search for rooms, offices etc..." variant="outlined" />
+                    )}
+                />}
             </Box>
+            </Toolbar>
+            </AppBar>
             {
                 venue &&
-                <GlobalView coordinates={coordinates} />
+                <GlobalView coordinates={coordinates} floorplan={floorplan} floor={floor} setFloor={setFloor} setFloorPlan={setFloorPlan} venue={venue} building={building} setRooms={setRooms} rooms={rooms}/>
             }
         </Box>
     )
 }
+
+const blocks = [
+   {title: 'Help Desk | Reception'},
+   {title: 'Rooms'},
+   {title: 'Security Room'},
+   {title: 'Information Center'},
+   {title: 'Transportation Service Till Building'},
+   {title: 'lift'},
+   {title: 'ramp'},
+   {title: 'escalator'},
+   {title: 'stairs'},
+   {title: 'drinkingWater'},
+   {title: 'kiosk'},
+   {title: 'restRoom'},
+   {title: 'Medical Room'},
+   {title: 'Break Room'},
+   {title: 'Change Room'},
+   {title: 'Clock Room'},
+   {title: 'Child | Baby Care'},
+   {title: 'Food and Drinks'},
+   {title: 'Trash Cans | Dustbin'}
+]
 
 export default Home
