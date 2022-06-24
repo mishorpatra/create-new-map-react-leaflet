@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+import { getGlobalPoints } from './convert'
+
 
 export const getVenues = async () => {
     try {
@@ -30,13 +32,41 @@ export const getBuildingData = async (venue_name, building_name, floor) => {
     }
 }
 
-export const getRoomsData = async (venue_name, building_name, floor) => {
+export const getRoomsData = async (venue_name, building_name) => {
+    
+    
     try {
-        let response = await axios.get(`https://inclunav.apps.iitd.ac.in/node/wayfinding/v1/app/android-navigation/${venue_name}/${building_name}/${floor}`)
-        console.log(response.data)
+        let response = await axios.get(`http://inclunav.apps.iitd.ac.in/node/wayfinding/v1/app/android-navigation/${venue_name}/${building_name}/null`)
+        //console.log(response.data)
+
+
+        let data = response.data
+        //console.log(data)
+        let floors = [...new Set(data.map(s => s.floor))]
+        //extract the floors
+        //polygon data or nonwalkables of all floors
+        
+        let poly_data = data.slice(data.length - floors.length,data.length);
+        console.log(poly_data.global)
+        let red_data = data.slice(0, data.length - floors.length);
+        // console.log(floors);
+        let fdata=poly_data.map(s=>s.floor)
+        const ldata=poly_data.map(s=>s.properties.floorLength)
+          
+
+
+
         return response.data
     }
     catch (error) {
         console.log('Error while getting the whole building data ', error)
     }
 }
+
+export const getGlobalCoords = (venue_name, building_name, setGlobalCoords) => {
+    getGlobalPoints(venue_name, building_name, setGlobalCoords)
+
+    
+}
+
+

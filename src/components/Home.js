@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import { Box, makeStyles, InputLabel, MenuItem, FormControl, Select, Typography, AppBar, Toolbar, TextField } from '@material-ui/core'
 import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete';
-import {  getVenues, getRoomsData, getBuildingData } from '../services/api';
+import {  getVenues, getRoomsData, getBuildingData, getGlobalCoords } from '../services/api';
 
 //components
 import GlobalView from './GlobalView';
@@ -78,6 +78,7 @@ const Home = () => {
     const [value, setValue] = useState()
     const [floor, setFloor] = useState('ground')
     const [rooms, setRooms] = useState()
+    const [globalCoords, setGlobalCoords] = useState()
 
     useEffect(() => {
         const fetchVenues = async () => {
@@ -105,6 +106,7 @@ const Home = () => {
         setFloorPlan(response)
         response = await getRoomsData(venue.venueName, event.target.value, floor)
         setRooms(response)
+        getGlobalCoords(venue.venueName, event.target.value, setGlobalCoords, setRooms)
     }
 
     const handleCloseVenue = () => {
@@ -232,7 +234,7 @@ const Home = () => {
             </AppBar>
             {
                 venue &&
-                <GlobalView coordinates={coordinates} floorplan={floorplan} floor={floor} setFloor={setFloor} setFloorPlan={setFloorPlan} venue={venue} building={building} setRooms={setRooms} rooms={rooms}/>
+                <GlobalView coordinates={coordinates} floorplan={floorplan} floor={floor} setFloor={setFloor} setFloorPlan={setFloorPlan} venue={venue} building={building} setRooms={setRooms} rooms={rooms} globalCoords={globalCoords}/>
             }
         </Box>
     )
