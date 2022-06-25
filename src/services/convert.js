@@ -2,7 +2,7 @@ import $ from 'jquery'
 
 
 
-export const getGlobalPoints = (venue_name, building_name, setGlobalCoords) => {
+export const getGlobalPoints = (venue_name, building_name, setGlobalCoords, setLandmarks) => {
 
 let poly_data
 let data
@@ -247,6 +247,8 @@ function runmainfunction(){
   myJSON=geoJSON;
   myJSON_poly=geoJSON_poly;
   setGlobalCoords(poly_data)
+  setLandmarks(data)
+  console.log(poly_data)
   //get_data();  
   console.log("DONE");  
 }

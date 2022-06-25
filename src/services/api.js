@@ -63,8 +63,8 @@ export const getRoomsData = async (venue_name, building_name) => {
     }
 }
 
-export const getGlobalCoords = (venue_name, building_name, setGlobalCoords) => {
-    getGlobalPoints(venue_name, building_name, setGlobalCoords)
+export const getGlobalCoords = (venue_name, building_name, setGlobalCoords, setLandmarks) => {
+    getGlobalPoints(venue_name, building_name, setGlobalCoords, setLandmarks)
 
     
 }

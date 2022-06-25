@@ -79,6 +79,7 @@ const Home = () => {
     const [floor, setFloor] = useState('ground')
     const [rooms, setRooms] = useState()
     const [globalCoords, setGlobalCoords] = useState()
+    const [landmarks, setLandmarks] = useState()
 
     useEffect(() => {
         const fetchVenues = async () => {
@@ -106,7 +107,7 @@ const Home = () => {
         setFloorPlan(response)
         response = await getRoomsData(venue.venueName, event.target.value, floor)
         setRooms(response)
-        getGlobalCoords(venue.venueName, event.target.value, setGlobalCoords, setRooms)
+        getGlobalCoords(venue.venueName, event.target.value, setGlobalCoords, setLandmarks)
     }
 
     const handleCloseVenue = () => {
@@ -234,7 +235,7 @@ const Home = () => {
             </AppBar>
             {
                 venue &&
-                <GlobalView coordinates={coordinates} floorplan={floorplan} floor={floor} setFloor={setFloor} setFloorPlan={setFloorPlan} venue={venue} building={building} setRooms={setRooms} rooms={rooms} globalCoords={globalCoords}/>
+                <GlobalView coordinates={coordinates} floorplan={floorplan} floor={floor} setFloor={setFloor} setFloorPlan={setFloorPlan} venue={venue} building={building} setRooms={setRooms} rooms={rooms} globalCoords={globalCoords} landmarks={landmarks}/>
             }
         </Box>
     )
