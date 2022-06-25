@@ -77,7 +77,7 @@ const parking = new Icon({
   iconSize: [25, 25]
 })
 const person = new Icon({
-  iconUrl: 'https://img.icons8.com/ios-glyphs/344/user-male-circle.png',
+  iconUrl: 'https://i.imgur.com/Eh5ndka.png',
   iconSize: [25, 25]
 })
 const man = new Icon({
@@ -89,7 +89,7 @@ const woman = new Icon({
   iconSize: [25, 25]
 })
 const lift = new Icon({
-  iconUrl: 'https://img.icons8.com/external-inipagistudio-mixed-inipagistudio/344/external-lift-hospitality-inipagistudio-mixed-inipagistudio.png',
+  iconUrl: 'https://i.imgur.com/AvXvxpk.png',
   iconSize: [25, 25]
 })
 const stairs = new Icon({
@@ -211,7 +211,7 @@ const GlobalView = ({coordinates, floorplan, setFloor, setFloorPlan, venue, buil
       {
         landmarks && landmarks.map(landmark => (
           landmark.properties.latitude && landmark.floor === floor && landmark.name && <Marker ref={mapRef} position={[landmark.properties.latitude, landmark.properties.longitude]} onclick={() => handleLandmark(landmark)} icon={
-            landmark.name=='SIT Entry' || landmark.name== 'Seminar Hall' || landmark.name== 'Library' || landmark.name== 'Assistech Lab' ? person :
+            landmark.element.type=='Rooms' ? person :
             landmark.name=='Lift-3' || landmark.name== 'Lift-1' || landmark.name== 'Lift-2' ? lift :
             landmark.name=='Stairs-1' || landmark.name== 'First floor stair' || landmark.name=='Second floor stair' ? stairs :
             landmark.name=='Female Washroom 1' ? woman :
@@ -230,7 +230,7 @@ const GlobalView = ({coordinates, floorplan, setFloor, setFloorPlan, venue, buil
           <Box style={{position: 'absolute', top: '5%', left: '1%', cursor: 'pointer'}} onClick={() => setOpen(false)}><ArrowBack /></Box>
             {landmarkData && 
             <Box>
-              <Typography style={{marginBottom: 10, fontSize: 16}}>{landmarkData.name}</Typography>
+              <Typography style={{marginBottom: 10, fontSize: 18, fontWeight: 600}}>{landmarkData.name}</Typography>
               <Box className={classes.connect}>
                 {landmarkData.properties.contactNo && <a href={`tel:${landmarkData.properties.contactNo}`} className={classes.option}><Phone /></a>}
                 {landmarkData.properties.email && <a href={`https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=${landmarkData.properties.email}`} target="_blank" className={classes.option}><Email /></a>}
@@ -240,7 +240,7 @@ const GlobalView = ({coordinates, floorplan, setFloor, setFloorPlan, venue, buil
               {landmarkData.properties.timings && <Typography>{landmarkData.properties.timings}</Typography>}
               <Box style={{marginBottom: 10}}>
                 <Typography>Add a Review</Typography>
-                <textarea style={{resize: 'none', width: '20vw', height: '15vh'}}  ></textarea><br />
+                <textarea placeholder='Write something here...' style={{resize: 'none', width: '20vw', height: '15vh', borderRadius: 10, padding: '8px 10px', marginTop: 10}}  ></textarea><br />
                 <Rate />
                 <Button variant='contained' style={{background: 'green', color: '#fff'}}>Submit</Button>
               </Box>
