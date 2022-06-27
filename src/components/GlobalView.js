@@ -230,7 +230,7 @@ const GlobalView = ({coordinates, floorplan, setFloor, setFloorPlan, venue, buil
       
       {
         landmarks && zoom>19 && landmarks.map(landmark => (
-          landmark.properties.latitude && landmark.floor === floor && landmark.name && <Marker ref={mapRef} position={[landmark.properties.latitude, landmark.properties.longitude]} title={landmark.name} alt={landmark.name} onclick={() => handleLandmark(landmark)} icon={
+          landmark.properties.latitude && landmark.floor === floor && landmark.name && <Marker ref={mapRef} position={[landmark.properties.latitude, landmark.properties.longitude]}  alt={landmark.name} onclick={() => handleLandmark(landmark)} icon={
             landmark.element.type=='Rooms' ? person :
             landmark.element.subType=='lift' ? lift :
             landmark.element.subType == 'stairs' ? stairs :
