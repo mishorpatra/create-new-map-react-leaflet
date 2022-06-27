@@ -8,6 +8,7 @@ const useStyle = makeStyles({
         justifyContent: 'center',
         alignItems: 'center',
         fontSize: '60px',
+		width: 'max-content'
     },
     radio: {
         display: 'none'

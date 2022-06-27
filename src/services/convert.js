@@ -248,9 +248,9 @@ function runmainfunction(){
   myJSON_poly=geoJSON_poly;
   setGlobalCoords(poly_data)
   setLandmarks(data)
-  console.log(poly_data)
+  //console.log(poly_data)
   //get_data();  
-  console.log("DONE");  
+  //console.log("DONE");  
 }
 
 
@@ -310,7 +310,7 @@ function getpolygondata(){
   //extract the floors
   //polygon data or nonwalkables of all floors
   poly_data = data.slice(data.length - floors.length,data.length);
-  console.log(poly_data)
+  //console.log(poly_data)
   
   //reduced data without non walkables
   red_data = data.slice(0, data.length - floors.length);
@@ -338,7 +338,7 @@ function getbuildingdata(){
   // console.log(buildingslist);
   // console.log(buildingslist.length);
   let building_url=`http://inclunav.apps.iitd.ac.in/node/wayfinding/v1/app/android-navigation/${venue_name}/${building_name}/null`
-  console.log('polygon here')
+  //console.log('polygon here')
   console.log(building_url);
   var settings1 = {
     "url": building_url,

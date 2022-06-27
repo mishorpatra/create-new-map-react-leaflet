@@ -32,7 +32,10 @@ const useStyles = makeStyles((theme) => ({
         display: 'flex',
         justifyContent: 'space-evenly',
         zIndex: 999,
-        wrap: 'wrap'
+        wrap: 'wrap',
+        [theme.breakpoints.down('sm')]: {
+            flexDirection: 'column'
+        }
     },
     inputBx: {
         width: '100%',
@@ -46,14 +49,17 @@ const useStyles = makeStyles((theme) => ({
     tag: {
         position: 'fixed',
         top: '3%',
-        left: '26vw',
+        left: '22vw',
         color: '#000',
+        textAlign: 'center',
+        zIndex: -1,
         [theme.breakpoints.down('md')]: {
             left: '22vw'
         },
         [theme.breakpoints.down('sm')]: {
-            left: '13vw',
-            top: '2.4%'
+            left: '0',
+            top: '2.7%',
+            width: '100%',
         }
     },
     search: {
@@ -103,6 +109,7 @@ const Home = () => {
     };
     const handleChangeBuilding = async (event) => {
         setBuilding(event.target.value)
+        setFloor('ground')
         let response = await getBuildingData(venue.venueName, event.target.value, floor)
         setFloorPlan(response)
         response = await getRoomsData(venue.venueName, event.target.value, floor)

@@ -1,8 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react'
-import { Map, TileLayer, Marker, Polygon, Polyline } from 'react-leaflet';
+import { Map, TileLayer, Marker, Polygon, Polyline, ZoomControl } from 'react-leaflet';
 import { Icon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { makeStyles, Box, Typography, Button } from '@material-ui/core'
+import { makeStyles, Box, Typography, Button, Dialog } from '@material-ui/core'
 import { Phone, Email, Language, ArrowBack, RateReview } from '@material-ui/icons'
 
 
@@ -10,7 +10,7 @@ import { Phone, Email, Language, ArrowBack, RateReview } from '@material-ui/icon
 import Lift from './Lift'
 import Rate from './Rating'
 
-const useStyle = makeStyles({
+const useStyle = makeStyles(theme => ({
     mapView: {
       width: '100vw',
       height: '100vh',
@@ -46,6 +46,7 @@ const useStyle = makeStyles({
       zIndex: 999,
       background: '#fff',
       width: '100%',
+      paddingBottom: 15
     },
     connenct: {
       display: 'flex',
@@ -56,9 +57,18 @@ const useStyle = makeStyles({
     option: {
       textDecoration: 'none',
       color: '#000',
-      margin: '0 10px'
+      margin: '0 10px',
+      cursor: 'pointer'
+    },
+    form: {
+      padding: '20px 25px',
+      width: '20vw',
+      [theme.breakpoints.down('sm')]: {
+        width: '68vw',
+        overflow: 'hidden'
+      }
     }
-  })
+  }))
 
 
 const defaultZoom = 18
@@ -81,28 +91,32 @@ const person = new Icon({
   iconSize: [25, 25]
 })
 const man = new Icon({
-  iconUrl: 'https://img.icons8.com/pastel-glyph/344/standing-man--v2.png',
-  iconSize: [25, 25]
+  iconUrl: 'https://i.imgur.com/sNkSo2p.png',
+  iconSize: [50, 50]
 })
 const woman = new Icon({
-  iconUrl: 'https://img.icons8.com/ios-filled/344/standing-woman.png',
-  iconSize: [25, 25]
+  iconUrl: 'https://i.imgur.com/EGs2yxZ.png',
+  iconSize: [50, 50]
 })
 const lift = new Icon({
-  iconUrl: 'https://i.imgur.com/AvXvxpk.png',
-  iconSize: [25, 25]
+  iconUrl: 'https://i.imgur.com/BbAeOzv.png',
+  iconSize: [50, 50]
 })
 const stairs = new Icon({
-  iconUrl: 'https://img.icons8.com/pastel-glyph/344/staircase--v2.png',
-  iconSize: [25, 25]
+  iconUrl: 'https://i.imgur.com/xt4Uv3C.png',
+  iconSize: [50, 50]
 })
 const water = new Icon({
-  iconUrl: 'https://img.icons8.com/ios-filled/344/drinking-fountain.png',
-  iconSize: [25, 25]
+  iconUrl: 'https://i.imgur.com/AEEUpIz.png',
+  iconSize: [50, 50]
 })
 const noIcon= new Icon({
   iconUrl: 'https://img.icons8.com/ios-filled/344/drinking-fountain.png',
   iconSize: [0, 0]
+})
+const beacon = new Icon({
+  iconUrl: 'https://i.imgur.com/yRy2aMn.png',
+  iconSize: [30, 30]
 })
 
 var inx = 0
@@ -115,35 +129,42 @@ const GlobalView = ({coordinates, floorplan, setFloor, setFloorPlan, venue, buil
     globalCoords && globalCoords.map(gc => {
       if(gc.floor === floor) inx = globalCoords.indexOf(gc)
     })
-    landmarks && console.log(landmarks[0])
+    //landmarks && console.log(landmarks[0])
 
     const [open, setOpen] = useState(false)
     const [landmarkData, setLandmarkData] = useState()
+    const [zoom, setZoom] = useState(20)
+    const [form, setForm] = useState(false)
     const handleLandmark = (landmark) => {
       setOpen(true)
       setLandmarkData(landmark)
     }
 
+    const handleZoom = (e) => {
+      setZoom(e.zoom)
+    }
+
    
     return (coordinates && !floorplan)? (
-        <Map ref={mapRef} center={coordinates} zoom={defaultZoom} className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2}>
+        <Map ref={mapRef} center={coordinates} zoom={defaultZoom} className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2} zoomControl={false}>
             <TileLayer 
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
               attribution="&copy; <a href=&quot;https://www.openstreetmap.org/copyright&quot;>OpenStreetMap</a> contributors"
               maxZoom={25}
               maxNativeZoom={19}
               />
+              <ZoomControl position='bottomright' />
             <Marker map={mapRef} position={coordinates} icon={pin} />
         </Map>
     ): (coordinates && floorplan && !globalCoords) ? (
-      <Map ref={mapRef} center={[floorplan.coordinates[0].globalRef.lat, floorplan.coordinates[0].globalRef.lng]} zoom={defaultZoom+2} className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2}>
+      <Map ref={mapRef} center={[floorplan.coordinates[0].globalRef.lat, floorplan.coordinates[0].globalRef.lng]} zoom={defaultZoom+2} className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2} zoomControl={false}>
             <TileLayer 
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
               attribution="&copy; <a href=&quot;https://www.openstreetmap.org/copyright&quot;>OpenStreetMap</a> contributors"
               maxZoom={25}
               maxNativeZoom={19}
               />
-
+            <ZoomControl position='bottomright' />
             
             
             <Polygon color='#d3cabf' opacity={0.1} fillOpacity={1} weight={1} lineCap="round" lineJoin='round' fill="#dad1c8" positions={
@@ -165,14 +186,13 @@ const GlobalView = ({coordinates, floorplan, setFloor, setFloorPlan, venue, buil
               <Lift  setLevel={setFloor} setFloorPlan={setFloorPlan} venue={venue} building={building} setRooms={setRooms} rooms={rooms} />
             </Box>
         </Map>
-    ): <Map ref={mapRef} center={[floorplan.coordinates[0].globalRef.lat, floorplan.coordinates[0].globalRef.lng]} zoom={defaultZoom+2} className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2}>
+    ): <Map ref={mapRef} center={[floorplan.coordinates[0].globalRef.lat, floorplan.coordinates[0].globalRef.lng]} zoom={defaultZoom+2} className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2} zoomControl={false} onViewportChange={(e) => handleZoom(e)} >
         <TileLayer 
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
           attribution="&copy; <a href=&quot;https://www.openstreetmap.org/copyright&quot;>OpenStreetMap</a> contributors"
           maxZoom={25}
           maxNativeZoom={19}
           />
-          {console.log("This is ", globalCoords[0].global[0][0][1], globalCoords[0].global[0][0][0])}
          {/*<Polyline color='#000' opacity={1} fillOpacity={1} weight={1} lineCap="round" lineJoin='round' fill='#000' positions={
           globalCoords[0].global[0].map(crd => {
             return [crd[1], crd[0]]
@@ -180,14 +200,14 @@ const GlobalView = ({coordinates, floorplan, setFloor, setFloorPlan, venue, buil
          } />*/}
 
         
-        
+        <ZoomControl position='bottomright' />
         
         <Polygon color='#d3cabf' opacity={0.1} fillOpacity={1} weight={1} lineCap="round" lineJoin='round' fill="#dad1c8" positions={
           [
-            [floorplan.coordinates[0].globalRef.lat, floorplan.coordinates[0].globalRef.lng],
-            [floorplan.coordinates[1].globalRef.lat, floorplan.coordinates[1].globalRef.lng],
-            [floorplan.coordinates[2].globalRef.lat, floorplan.coordinates[2].globalRef.lng],
-            [floorplan.coordinates[3].globalRef.lat, floorplan.coordinates[3].globalRef.lng],
+            [parseFloat(floorplan.coordinates[0].globalRef.lat)/*-0.00001*/, floorplan.coordinates[0].globalRef.lng],
+            [parseFloat(floorplan.coordinates[1].globalRef.lat), floorplan.coordinates[1].globalRef.lng],
+            [parseFloat(floorplan.coordinates[2].globalRef.lat)/*+0.00004*/, floorplan.coordinates[2].globalRef.lng],
+            [parseFloat(floorplan.coordinates[3].globalRef.lat)/*+0.00004*/, floorplan.coordinates[3].globalRef.lng],
           ]
         } />
         {/*< Polygon color='#000'  opacity={0.7} fillOpacity={0} weight={3} lineCap="round" lineJoin='round'  positions={
@@ -209,14 +229,15 @@ const GlobalView = ({coordinates, floorplan, setFloor, setFloorPlan, venue, buil
         
       
       {
-        landmarks && landmarks.map(landmark => (
-          landmark.properties.latitude && landmark.floor === floor && landmark.name && <Marker ref={mapRef} position={[landmark.properties.latitude, landmark.properties.longitude]} onclick={() => handleLandmark(landmark)} icon={
+        landmarks && zoom>19 && landmarks.map(landmark => (
+          landmark.properties.latitude && landmark.floor === floor && landmark.name && <Marker ref={mapRef} position={[landmark.properties.latitude, landmark.properties.longitude]} title={landmark.name} alt={landmark.name} onclick={() => handleLandmark(landmark)} icon={
             landmark.element.type=='Rooms' ? person :
-            landmark.name=='Lift-3' || landmark.name== 'Lift-1' || landmark.name== 'Lift-2' ? lift :
-            landmark.name=='Stairs-1' || landmark.name== 'First floor stair' || landmark.name=='Second floor stair' ? stairs :
-            landmark.name=='Female Washroom 1' ? woman :
-            landmark.name=='Water Point' || landmark.name== 'Drinking Water' || landmark.name== 'Drinking Water Point 1' ? water :
-            landmark.name=='Male Washroom 1' ? man : noIcon
+            landmark.element.subType=='lift' ? lift :
+            landmark.element.subType == 'stairs' ? stairs :
+            landmark.properties.washroomType=='Female' ? woman :
+            landmark.element.subType == 'drinkingWater' ? water :
+            landmark.properties.washroomType=='Male' ? man : 
+            landmark.element.subType == 'beacons' && zoom>22 ? beacon : noIcon
           } />
 
         ))
@@ -224,7 +245,7 @@ const GlobalView = ({coordinates, floorplan, setFloor, setFloorPlan, venue, buil
      
 
         <Box className={classes.lift}>
-          <Lift  setLevel={setFloor} setFloorPlan={setFloorPlan} venue={venue} building={building} setRooms={setRooms} rooms={rooms} />
+          <Lift  setLevel={setFloor} level={floor} setFloorPlan={setFloorPlan} venue={venue} building={building} setRooms={setRooms} rooms={rooms} />
         </Box>
         <Box className={classes.dialog} style={{display: open ? 'block' : 'none'}}>
           <Box style={{position: 'absolute', top: '5%', left: '1%', cursor: 'pointer'}} onClick={() => setOpen(false)}><ArrowBack /></Box>
@@ -235,17 +256,20 @@ const GlobalView = ({coordinates, floorplan, setFloor, setFloorPlan, venue, buil
                 {landmarkData.properties.contactNo && <a href={`tel:${landmarkData.properties.contactNo}`} className={classes.option}><Phone /></a>}
                 {landmarkData.properties.email && <a href={`https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=${landmarkData.properties.email}`} target="_blank" className={classes.option}><Email /></a>}
                 {landmarkData.properties.url && <a href={`${landmarkData.properties.url}`} target='_blank' className={classes.option}><Language /></a>}
+                <a className={classes.option} onClick={() => setForm(true)} title='Feedback' ><RateReview /></a>
                 
               </Box>
               {landmarkData.properties.timings && <Typography>{landmarkData.properties.timings}</Typography>}
-              <Box style={{marginBottom: 10}}>
-                <Typography>Add a Review</Typography>
-                <textarea placeholder='Write something here...' style={{resize: 'none', width: '20vw', height: '15vh', borderRadius: 10, padding: '8px 10px', marginTop: 10}}  ></textarea><br />
-                <Rate />
-                <Button variant='contained' style={{background: 'green', color: '#fff'}}>Submit</Button>
-              </Box>
             </Box>}
         </Box>
+        <Dialog open={form} onClose={() => setForm(false)} >
+        <Box className={classes.form}>
+                <Typography style={{fontWeight: 600, fontSize: 18, marginLeft: 10}}>Add a Review</Typography>
+                <textarea placeholder='Write something here...'  style={{resize: 'none', width: '90%', height: '15vh', borderRadius: 10, padding: '8px 10px', marginTop: 10}}  ></textarea><br />
+                <Rate />
+                <Button variant='contained' style={{background: 'green', color: '#fff'}} onClick={() => setForm(false)}>Submit</Button>
+              </Box>
+        </Dialog>
     </Map>
 }
 
