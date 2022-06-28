@@ -110,6 +110,7 @@ const Home = () => {
     const handleChangeBuilding = async (event) => {
         setBuilding(event.target.value)
         setFloor('ground')
+        setValue({title: 'All'})
         let response = await getBuildingData(venue.venueName, event.target.value, floor)
         setFloorPlan(response)
         response = await getRoomsData(venue.venueName, event.target.value, floor)
