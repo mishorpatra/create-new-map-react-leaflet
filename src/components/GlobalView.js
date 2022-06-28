@@ -35,7 +35,7 @@ const useStyle = makeStyles(theme => ({
     lift: {
       position: 'fixed',
       zIndex: 999,
-      bottom: '40%',
+      bottom: '25%',
       left: '5%'
     },
     dialog: {
@@ -166,7 +166,7 @@ const GlobalView = ({coordinates,
               maxNativeZoom={19}
               />
               <ZoomControl position='bottomright' />
-            <Marker map={mapRef} position={coordinates} icon={pin} />
+            <Marker map={mapRef} position={coordinates} icon={pin} alt={venue.venueName} />
         </Map>
     ): (coordinates && floorplan && !globalCoords) ? (
       <Map ref={mapRef} center={[floorplan.coordinates[0].globalRef.lat, floorplan.coordinates[0].globalRef.lng]} zoom={defaultZoom+2} className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2} zoomControl={false}>
@@ -257,7 +257,14 @@ const GlobalView = ({coordinates,
      
 
         <Box className={classes.lift}>
-          <Lift  setLevel={setFloor} level={floor} setFloorPlan={setFloorPlan} venue={venue} building={building} setRooms={setRooms} rooms={rooms} />
+          <Lift  
+            setLevel={setFloor} 
+            level={floor} 
+            setFloorPlan={setFloorPlan} 
+            venue={venue} 
+            building={building} 
+            setRooms={setRooms} 
+            rooms={rooms} />
         </Box>
         <Box className={classes.dialog} style={{display: open ? 'block' : 'none'}}>
           <Box style={{position: 'absolute', top: '5%', left: '1%', cursor: 'pointer'}} onClick={() => setOpen(false)}><ArrowBack /></Box>
