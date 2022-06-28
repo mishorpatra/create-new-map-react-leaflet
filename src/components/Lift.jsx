@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, makeStyles, Typography } from '@material-ui/core'
 import { getBuildingData, getRoomsData } from "../services/api";
-import { numToString } from "../services/neumericConvert";
+import { numToString, stringToNum } from "../services/neumericConvert";
 
 
 
@@ -46,6 +46,11 @@ const Lift = ({setLevel, level, setFloorPlan, venue, building, setRooms, rooms})
     if(rooms) poly_data = rooms.slice(rooms.length - floors.length,rooms.length)
     //console.log(poly_data)
     // console.log(floors);
+    var newFloors = []
+    floors && floors.map((floor, idx) => {
+        newFloors.push(stringToNum(idx))
+    })
+    //console.log(newFloors)
     if(poly_data) fdata=poly_data.map(s=>s.floor)
 
   
@@ -66,8 +71,8 @@ const Lift = ({setLevel, level, setFloorPlan, venue, building, setRooms, rooms})
     return (
         <Box className={classes.lift} >
             {
-                fdata && fdata.map(data => (
-                    <Box className={classes.floor} id={`floor${numToString(data)}`} onClick={() => handleClick(numToString(data), data)}><Typography>L{numToString(data)}</Typography></Box>
+                newFloors && newFloors.map(data => (
+                    <Box style={{background: data=='ground' && floor==0 ? '#333': '#787878'}} className={classes.floor} id={`floor${numToString(data)}`} onClick={() => handleClick(numToString(data), data)}><Typography>L{numToString(data)}</Typography></Box>
                 ))
             }
         </Box>

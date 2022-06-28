@@ -23,3 +23,26 @@ export const numToString = (n) => {
     else if(n == 'ninteenth') return 19
     else if(n == 'base1') return -1
 }
+
+export const stringToNum = (n) => {
+    return n == 0 ? 'ground' : 
+    n == 1 ? 'first' :
+    n == 2 ? 'second': 
+    n == 3 ? 'third' :
+    n == 4 ? 'fourth' : 
+    n == 5 ? 'fifth' : 
+    n == 6 ? 'sixth' : 
+    n == 7 ? 'seventh' : 
+    n == 8 ? 'eighth' : 
+    n == 9 ? 'nineth' :
+    n == 10 ? 'tenth' :
+    n == 11 ? 'eleventh' :
+    n == 12 ? 'twelth' :
+    n == 13 ? 'thirteenth' :
+    n == 14 ? 'fourteenth' :
+    n == 15 ? 'fifteenth' :
+    n == 16 ? 'sixteenth' :
+    n == 17 ? 'seventeenth' :
+    n == 18 ? 'eighteenth' :
+    n == 19 ? 'nineteenth' : null
+}

@@ -81,7 +81,7 @@ const Home = () => {
     const [building, setBuilding] = useState()
     const [coordinates, setCoordinates] = useState(initialCords)
     const [floorplan, setFloorPlan] = useState()
-    const [value, setValue] = useState()
+    const [value, setValue] = useState({title: 'All'})
     const [floor, setFloor] = useState('ground')
     const [rooms, setRooms] = useState()
     const [globalCoords, setGlobalCoords] = useState()
@@ -116,6 +116,8 @@ const Home = () => {
         setRooms(response)
         getGlobalCoords(venue.venueName, event.target.value, setGlobalCoords, setLandmarks)
     }
+
+    
 
     const handleCloseVenue = () => {
         setOpenVenue(false);
@@ -199,6 +201,7 @@ const Home = () => {
                         } else {
                         setValue(newValue);
                         }
+                        console.log(value)
                     }}
                     filterOptions={(options, params) => {
                         const filtered = filter(options, params);
@@ -234,7 +237,7 @@ const Home = () => {
                     style={{ width: 300 }}
                     freeSolo
                     renderInput={(params) => (
-                        <TextField {...params} label="Search for rooms, offices etc..." variant="outlined" />
+                        <TextField {...params} label="Search for rooms, offices etc..." variant="outlined"  />
                     )}
                 />}
             </Box>
@@ -242,13 +245,26 @@ const Home = () => {
             </AppBar>
             {
                 venue &&
-                <GlobalView coordinates={coordinates} floorplan={floorplan} floor={floor} setFloor={setFloor} setFloorPlan={setFloorPlan} venue={venue} building={building} setRooms={setRooms} rooms={rooms} globalCoords={globalCoords} landmarks={landmarks}/>
+                <GlobalView 
+                    coordinates={coordinates} 
+                    floorplan={floorplan} 
+                    floor={floor} 
+                    setFloor={setFloor} 
+                    setFloorPlan={setFloorPlan}
+                    venue={venue} 
+                    building={building} 
+                    setRooms={setRooms} 
+                    rooms={rooms} 
+                    globalCoords={globalCoords} 
+                    landmarks={landmarks} 
+                    value={value}/>
             }
         </Box>
     )
 }
 
 const blocks = [
+   {title: 'All'},
    {title: 'Help Desk | Reception'},
    {title: 'Rooms'},
    {title: 'Security Room'},

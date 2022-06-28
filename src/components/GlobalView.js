@@ -87,28 +87,28 @@ const parking = new Icon({
   iconSize: [25, 25]
 })
 const person = new Icon({
-  iconUrl: 'https://i.imgur.com/Eh5ndka.png',
-  iconSize: [25, 25]
+  iconUrl: 'https://i.imgur.com/eMkL1sI.png',
+  iconSize: [40, 40]
 })
 const man = new Icon({
   iconUrl: 'https://i.imgur.com/sNkSo2p.png',
-  iconSize: [50, 50]
+  iconSize: [40, 40]
 })
 const woman = new Icon({
   iconUrl: 'https://i.imgur.com/EGs2yxZ.png',
-  iconSize: [50, 50]
+  iconSize: [40, 40]
 })
 const lift = new Icon({
   iconUrl: 'https://i.imgur.com/BbAeOzv.png',
-  iconSize: [50, 50]
+  iconSize: [40, 40]
 })
 const stairs = new Icon({
   iconUrl: 'https://i.imgur.com/xt4Uv3C.png',
-  iconSize: [50, 50]
+  iconSize: [40, 40]
 })
 const water = new Icon({
   iconUrl: 'https://i.imgur.com/AEEUpIz.png',
-  iconSize: [50, 50]
+  iconSize: [40, 40]
 })
 const noIcon= new Icon({
   iconUrl: 'https://img.icons8.com/ios-filled/344/drinking-fountain.png',
@@ -116,16 +116,28 @@ const noIcon= new Icon({
 })
 const beacon = new Icon({
   iconUrl: 'https://i.imgur.com/yRy2aMn.png',
-  iconSize: [30, 30]
+  iconSize: [40, 40]
 })
 
 var inx = 0
 
-const GlobalView = ({coordinates, floorplan, setFloor, setFloorPlan, venue, building, setRooms, rooms, globalCoords, floor, landmarks}) => {
+const GlobalView = ({coordinates, 
+                    floorplan, 
+                    setFloor, 
+                    setFloorPlan, 
+                    venue, 
+                    building, 
+                    setRooms, 
+                    rooms, 
+                    globalCoords, 
+                    floor, 
+                    landmarks,
+                    value }) => {
     const mapRef = useRef();
     const classes = useStyle()
     //console.log(floor)
     //console.log(globalCoords)
+    //console.log(value)
     globalCoords && globalCoords.map(gc => {
       if(gc.floor === floor) inx = globalCoords.indexOf(gc)
     })
@@ -231,12 +243,12 @@ const GlobalView = ({coordinates, floorplan, setFloor, setFloorPlan, venue, buil
       {
         landmarks && zoom>19 && landmarks.map(landmark => (
           landmark.properties.latitude && landmark.floor === floor && landmark.name && <Marker ref={mapRef} position={[landmark.properties.latitude, landmark.properties.longitude]}  alt={landmark.name} onclick={() => handleLandmark(landmark)} icon={
-            landmark.element.type=='Rooms' ? person :
-            landmark.element.subType=='lift' ? lift :
-            landmark.element.subType == 'stairs' ? stairs :
-            landmark.properties.washroomType=='Female' ? woman :
-            landmark.element.subType == 'drinkingWater' ? water :
-            landmark.properties.washroomType=='Male' ? man : 
+            landmark.element.type=='Rooms' && (value.title === 'All' || value.title === 'Rooms') ? person :
+            landmark.element.subType=='lift' && (value.title === 'All' || value.title === 'lift') ? lift :
+            landmark.element.subType == 'stairs' && (value.title === 'All' || value.title === 'stairs') ? stairs :
+            landmark.properties.washroomType=='Female' && (value.title === 'All' || value.title === 'restRoom') ? woman :
+            landmark.element.subType == 'drinkingWater' && (value.title === 'All' || value.title === "drinkingWater") ? water :
+            landmark.properties.washroomType=='Male' && (value.title === 'All' || value.title === 'restRoom') ? man : 
             landmark.element.subType == 'beacons' && zoom>22 ? beacon : noIcon
           } />
 
