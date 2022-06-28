@@ -201,7 +201,7 @@ const Home = () => {
                         } else {
                         setValue(newValue);
                         }
-                        console.log(value)
+                        //console.log(value)
                     }}
                     filterOptions={(options, params) => {
                         const filtered = filter(options, params);

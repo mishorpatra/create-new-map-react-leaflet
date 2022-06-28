@@ -346,7 +346,7 @@ function getbuildingdata(){
     "timeout": 0,
   };
   $.ajax(settings1).done(function (response) {
-    console.log(response);
+    //console.log(response);
     data=response;
     getpolygondata();        
   });
