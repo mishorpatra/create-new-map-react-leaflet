@@ -65,8 +65,53 @@ export const getRoomsData = async (venue_name, building_name) => {
 
 export const getGlobalCoords = (venue_name, building_name, setGlobalCoords, setLandmarks) => {
     getGlobalPoints(venue_name, building_name, setGlobalCoords, setLandmarks)
+}
 
-    
+const URL='http://localhost:8000'
+export const sendOtp = async (email) => {
+    const post = { email: email }
+    try {
+        return await axios.post(`${URL}/user/send-otp`, post)
+    } catch(error) {
+        console.log('Error while calling the send otp api ', error)
+    }
+}
+
+export const addUser = async (post) => {
+    try {
+       // console.log(post)
+        return await axios.post(`${URL}/user/save-user`, post)
+    } catch(error) {
+        console.log(error)
+    }
+}
+
+export const addDevice = async (device) => {
+    try {
+        const post = { device_code: device }
+        return await axios.post(`${URL}/admin/save-device`, post)
+    } catch(error) {
+        console.log(error)
+    }
+}
+
+export const getDevices = async () => {
+    try {
+        let response = await axios.get(`${URL}/admin/all-devices`)
+       // console.log(response.data)
+        return await response.data
+    } catch(error) {
+        console.log('Error while getting all devices ', error)
+    }
+}
+
+export const signIn = async (post) => {
+    try {
+        let response = await axios.post(`${URL}/user/login`, post)
+        return response
+    } catch(error) {
+        console.log('Error while signing in ', error)
+    }
 }
 
 

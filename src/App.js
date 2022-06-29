@@ -8,6 +8,7 @@ import GlobalView from './components/GlobalView';
 import Home from './components/Home'
 import Login from './components/authentication/Login';
 import Signup from './components/authentication/Signup';
+import AddDevice from './components/admin/AddDevice'
 
 
 
@@ -16,9 +17,10 @@ function App() {
     <div className="App" >
       <BrowserRouter>
         <Routes>
-          <Route exact path='/signin' element={<Login />} />
+          {/*<Route exact path='/signin' element={<Login />} />
           <Route exact path='/signup' element={<Signup />} />
-        {/*<Home />*/}
+  <Route exact path='/admin' element={<AddDevice />} />*/}
+        <Route exact path='/' element={<Home />} />
         </Routes>
       </BrowserRouter>
     </div>

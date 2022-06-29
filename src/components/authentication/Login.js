@@ -1,6 +1,7 @@
-import React from 'react'
-import { Box, Typography, TextField, Button, makeStyles } from '@material-ui/core'
+import React, { useState } from 'react'
+import { Box, Typography, TextField, Button, makeStyles, CircularProgress } from '@material-ui/core'
 import { Link } from 'react-router-dom'
+import { signIn } from '../../services/api'
 
 const useStyle = makeStyles({
     component: {
@@ -49,8 +50,25 @@ const useStyle = makeStyles({
     }
 })
 
+const initialValues = {
+    email: '',
+    password: ''
+}
+
 const Login = () => {
     const classes = useStyle()
+    const [auth, setAuth] = useState(initialValues)
+    const [loading, setLoading] = useState(false)
+
+    const handleChange = (e) => { 
+        setAuth({...auth, [e.target.name]: e.target.value})
+    }
+
+    const handleSubmit = async () => {
+        setLoading(true)
+        let response = await signIn(auth)
+        setLoading(false)
+    }
 
     return (
         <Box className={classes.component}>
@@ -58,10 +76,10 @@ const Login = () => {
                 <Typography className={classes.heading} variant='h4'>Welcome to Inclunav! </Typography>
                 <Typography className={classes.subHeading} variant='h6'>Your indoor navigation assistant</Typography>
                 <Box className={classes.form}>
-                    <TextField variant='outlined' label="Email" className={classes.input} />
-                    <TextField variant='outlined' label="Password" className={classes.input} />
+                    <TextField variant='outlined' label="Email" name='email' className={classes.input} onChange={(e) => handleChange(e)} />
+                    <TextField variant='outlined' label="Password" name='password' className={classes.input} onChange={(e) => handleChange(e)} />
                 </Box>
-                <Button variant='contained' style={{background: '#36e0c2'}} className={classes.submit}>Sign in</Button>
+                <Button variant='contained' style={{background: '#36e0c2'}} className={classes.submit} onClick={() => handleSubmit()}>Sign in</Button>
                 <Box className={classes.actions}>
                 <Link to='/signup' className={classes.link}><Typography>New user? Sign Up!</Typography></Link>
                 <Typography>Forget Password?</Typography>

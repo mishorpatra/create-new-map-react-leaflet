@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import { Box, makeStyles, InputLabel, MenuItem, FormControl, Select, Typography, AppBar, Toolbar, TextField } from '@material-ui/core'
+import { Menu } from '@material-ui/icons'
 import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete';
 import {  getVenues, getRoomsData, getBuildingData, getGlobalCoords } from '../services/api';
 
@@ -66,6 +67,27 @@ const useStyles = makeStyles((theme) => ({
         [theme.breakpoints.down('sm')]: {
             marginTop: 10
         },
+    },
+    navBar: {
+        background: '#36e0c2', 
+        opacity: '0.8', 
+        paddingBottom: 5,
+        transition: 0.5,
+        height: 'max-content',
+        [theme.breakpoints.down('sm')]: {
+            display: 'none',
+            padding: '0 0 0 20px'
+        }
+    },
+    menuIcon: {
+        alignSelf: 'flex-start',
+        margin: '10px 0 0 10px',
+        display: 'none',
+        zIndex: 99999,
+        cursor: 'pointer',
+        [theme.breakpoints.down('sm')]: {
+            display: 'block'
+        }
     }
   }));
 
@@ -136,9 +158,15 @@ const Home = () => {
         setOpenBuilding(true)
     }
 
+    const handleNavBar = () => {
+        const navBar = document.querySelector('#nav_bar').style
+        navBar.display = navBar.display == 'none' ? 'block' : 'none' 
+    }
+
     return (
         <Box className={classes.component}>
-            <AppBar style={{background: '#36e0c2', opacity: '0.8', paddingBottom: 5}}>
+            <Menu className={classes.menuIcon} onClick={() => handleNavBar()}/>
+            <AppBar style={{}} className={classes.navBar} id='nav_bar' >
                 <Toolbar>
             <Box className={classes.inputBx} >
                 <Box className={classes.container}>

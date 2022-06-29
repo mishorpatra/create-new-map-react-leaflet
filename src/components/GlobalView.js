@@ -136,7 +136,7 @@ const GlobalView = ({coordinates,
     const mapRef = useRef();
     const classes = useStyle()
     //console.log(floor)
-    //console.log(globalCoords)
+    floorplan && console.log(floorplan.coordinates)
     //console.log(value)
     globalCoords && globalCoords.map(gc => {
       if(gc.floor === floor) inx = globalCoords.indexOf(gc)
@@ -169,7 +169,13 @@ const GlobalView = ({coordinates,
             <Marker map={mapRef} position={coordinates} icon={pin} alt={venue.venueName} />
         </Map>
     ): (coordinates && floorplan && !globalCoords) ? (
-      <Map ref={mapRef} center={[floorplan.coordinates[0].globalRef.lat, floorplan.coordinates[0].globalRef.lng]} zoom={defaultZoom+2} className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2} zoomControl={false}>
+      <Map ref={mapRef} 
+          center={[
+             (parseFloat(floorplan.coordinates[0].globalRef.lat)+parseFloat(floorplan.coordinates[2].globalRef.lat))/2, 
+             (parseFloat(floorplan.coordinates[0].globalRef.lng)+parseFloat(floorplan.coordinates[2].globalRef.lng))/2
+            ]} 
+          zoom={defaultZoom+2} className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2} zoomControl={false}>
+
             <TileLayer 
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
               attribution="&copy; <a href=&quot;https://www.openstreetmap.org/copyright&quot;>OpenStreetMap</a> contributors"
@@ -198,7 +204,12 @@ const GlobalView = ({coordinates,
               <Lift  setLevel={setFloor} setFloorPlan={setFloorPlan} venue={venue} building={building} setRooms={setRooms} rooms={rooms} />
             </Box>
         </Map>
-    ): <Map ref={mapRef} center={[floorplan.coordinates[0].globalRef.lat, floorplan.coordinates[0].globalRef.lng]} zoom={defaultZoom+2} className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2} zoomControl={false} onViewportChange={(e) => handleZoom(e)} >
+    ): <Map ref={mapRef} 
+            center={[
+              (parseFloat(floorplan.coordinates[0].globalRef.lat)+parseFloat(floorplan.coordinates[2].globalRef.lat))/2, 
+             (parseFloat(floorplan.coordinates[0].globalRef.lng)+parseFloat(floorplan.coordinates[2].globalRef.lng))/2
+            ]} 
+              zoom={defaultZoom+2} className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2} zoomControl={false} onViewportChange={(e) => handleZoom(e)} >
         <TileLayer 
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
           attribution="&copy; <a href=&quot;https://www.openstreetmap.org/copyright&quot;>OpenStreetMap</a> contributors"
