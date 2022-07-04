@@ -4,6 +4,7 @@ import { Icon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { makeStyles, Box, Typography, Button, Dialog } from '@material-ui/core'
 import { Phone, Email, Language, ArrowBack, RateReview } from '@material-ui/icons'
+import useWindowDimensions from '../services/getWindowSize';
 
 
 //components
@@ -17,6 +18,9 @@ const useStyle = makeStyles(theme => ({
       position: 'fixed',
       top: 0,
       left: 0,
+      [theme.breakpoints.down('sm')]: {
+        height: '95vh'
+      }
     },
     formBx: {
       width: '100%',
@@ -35,8 +39,8 @@ const useStyle = makeStyles(theme => ({
     lift: {
       position: 'fixed',
       zIndex: 999,
-      bottom: '25%',
-      left: '5%'
+      bottom: '19%',
+      right: '1%'
     },
     dialog: {
       position: 'fixed',
@@ -46,7 +50,6 @@ const useStyle = makeStyles(theme => ({
       zIndex: 999,
       background: '#fff',
       width: '100%',
-      paddingBottom: 15
     },
     connenct: {
       display: 'flex',
@@ -133,10 +136,13 @@ const GlobalView = ({coordinates,
                     floor, 
                     landmarks,
                     value }) => {
+
+    const { width } = useWindowDimensions()
+    
     const mapRef = useRef();
     const classes = useStyle()
     //console.log(floor)
-    floorplan && console.log(floorplan.coordinates)
+    //floorplan && console.log(floorplan.coordinates)
     //console.log(value)
     globalCoords && globalCoords.map(gc => {
       if(gc.floor === floor) inx = globalCoords.indexOf(gc)
@@ -165,7 +171,9 @@ const GlobalView = ({coordinates,
               maxZoom={25}
               maxNativeZoom={19}
               />
-              <ZoomControl position='bottomright' />
+              <Box style={{marginBottom: 20}}>
+                <ZoomControl position='bottomright'  />
+              </Box>
             <Marker map={mapRef} position={coordinates} icon={pin} alt={venue.venueName} />
         </Map>
     ): (coordinates && floorplan && !globalCoords) ? (
@@ -174,7 +182,7 @@ const GlobalView = ({coordinates,
              (parseFloat(floorplan.coordinates[0].globalRef.lat)+parseFloat(floorplan.coordinates[2].globalRef.lat))/2, 
              (parseFloat(floorplan.coordinates[0].globalRef.lng)+parseFloat(floorplan.coordinates[2].globalRef.lng))/2
             ]} 
-          zoom={defaultZoom+2} className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2} zoomControl={false}>
+          zoom={ width<958 ? defaultZoom+1 : defaultZoom+2 } className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2} zoomControl={false}>
 
             <TileLayer 
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
@@ -209,7 +217,7 @@ const GlobalView = ({coordinates,
               (parseFloat(floorplan.coordinates[0].globalRef.lat)+parseFloat(floorplan.coordinates[2].globalRef.lat))/2, 
              (parseFloat(floorplan.coordinates[0].globalRef.lng)+parseFloat(floorplan.coordinates[2].globalRef.lng))/2
             ]} 
-              zoom={defaultZoom+2} className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2} zoomControl={false} onViewportChange={(e) => handleZoom(e)} >
+              zoom={width<958 ? defaultZoom+1 : defaultZoom+2 } className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2} zoomControl={false} onViewportChange={(e) => handleZoom(e)} >
         <TileLayer 
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
           attribution="&copy; <a href=&quot;https://www.openstreetmap.org/copyright&quot;>OpenStreetMap</a> contributors"
@@ -252,7 +260,7 @@ const GlobalView = ({coordinates,
         
       
       {
-        landmarks && zoom>19 && landmarks.map(landmark => (
+        value && landmarks && zoom>19 && landmarks.map(landmark => (
           landmark.properties.latitude && landmark.floor === floor && landmark.name && <Marker ref={mapRef} position={[landmark.properties.latitude, landmark.properties.longitude]}  alt={landmark.name} onclick={() => handleLandmark(landmark)} icon={
             landmark.element.type=='Rooms' && (value.title === 'All' || value.title === 'Rooms') ? person :
             landmark.element.subType=='lift' && (value.title === 'All' || value.title === 'lift') ? lift :
@@ -281,7 +289,7 @@ const GlobalView = ({coordinates,
           <Box style={{position: 'absolute', top: '5%', left: '1%', cursor: 'pointer'}} onClick={() => setOpen(false)}><ArrowBack /></Box>
             {landmarkData && 
             <Box>
-              <Typography style={{marginBottom: 10, fontSize: 18, fontWeight: 600}}>{landmarkData.name}</Typography>
+              <Typography style={{marginBottom: 5, fontSize: 17, fontWeight: 600}}>{landmarkData.name}</Typography>
               <Box className={classes.connect}>
                 {landmarkData.properties.contactNo && <a href={`tel:${landmarkData.properties.contactNo}`} className={classes.option}><Phone /></a>}
                 {landmarkData.properties.email && <a href={`https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=${landmarkData.properties.email}`} target="_blank" className={classes.option}><Email /></a>}

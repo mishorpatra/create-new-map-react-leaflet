@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import './App.css';
 import 'leaflet/dist/leaflet.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
@@ -13,14 +13,20 @@ import AddDevice from './components/admin/AddDevice'
 
 
 function App() {
+
+const [user, setUser] = useState()
+
+
+
+
   return (
     <div className="App" >
-      <BrowserRouter>
+      <BrowserRouter basename='/exibition-new'>
         <Routes>
-          {/*<Route exact path='/signin' element={<Login />} />
+          <Route exact path='/signin' element={<Login setUser={setUser} user={user} />} />
           <Route exact path='/signup' element={<Signup />} />
-  <Route exact path='/admin' element={<AddDevice />} />*/}
-        <Route exact path='/' element={<Home />} />
+          <Route exact path='/admin$Mishor_3003' element={<AddDevice />} />
+          <Route exact path='/' element={<Home user={user} setUser={setUser} />} />
         </Routes>
       </BrowserRouter>
     </div>

@@ -2399,6 +2399,11 @@
   dependencies:
     "tweetnacl" "^0.14.3"
 
+"bcryptjs@^2.4.3":
+  "integrity" "sha512-V/Hy/X9Vt7f3BbPJEi8BdVFMByHi+jNXrYkW3huaybV/kQ0KJg0Y6PkEMbn+zeT+i+SiKZ/HMqJGIIt4LZDqNQ=="
+  "resolved" "https://registry.npmjs.org/bcryptjs/-/bcryptjs-2.4.3.tgz"
+  "version" "2.4.3"
+
 "big.js@^5.2.2":
   "integrity" "sha512-vyL2OymJxmarO8gxMr0mhChsO9QGwhynfuu4+MHTAW6czfq9humCB7rKpUjDd9YUiDPU4mzpyupFSvOClAwbmQ=="
   "resolved" "https://registry.npmjs.org/big.js/-/big.js-5.2.2.tgz"
@@ -2986,7 +2991,7 @@
     "kind-of" "^6.0.2"
     "shallow-clone" "^3.0.0"
 
-"clsx@^1.0.4":
+"clsx@^1.0.4", "clsx@^1.1.0":
   "integrity" "sha512-6/bPho624p3S2pMyvP5kKBPXnI3ufHLObBFCfgx+LkeR5lg2XYy2hqZqUf45ypD8COn2bhgGJSUE+l5dhNBieA=="
   "resolved" "https://registry.npmjs.org/clsx/-/clsx-1.1.1.tgz"
   "version" "1.1.1"
@@ -8676,7 +8681,7 @@
     "kleur" "^3.0.3"
     "sisteransi" "^1.0.4"
 
-"prop-types@^15.5.4", "prop-types@^15.6.0", "prop-types@^15.6.2", "prop-types@^15.7.2", "prop-types@^15.8.1":
+"prop-types@^15.5.0", "prop-types@^15.5.4", "prop-types@^15.6.0", "prop-types@^15.6.2", "prop-types@^15.7.2", "prop-types@^15.8.1":
   "integrity" "sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg=="
   "resolved" "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz"
   "version" "15.8.1"
@@ -9032,6 +9037,14 @@
     "react-swipeable-views-utils" "^0.14.0"
     "warning" "^4.0.1"
 
+"react-tabs@^4.2.0":
+  "integrity" "sha512-3DifAM5Xbi4EzdzPsmJTxdiW0/QRqvtOZ+ubWQrlruG/e3WVQo+hVcqGB/GdwL8WNz7yGFPk6jiN9Qrxw26WIw=="
+  "resolved" "https://registry.npmjs.org/react-tabs/-/react-tabs-4.2.0.tgz"
+  "version" "4.2.0"
+  dependencies:
+    "clsx" "^1.1.0"
+    "prop-types" "^15.5.0"
+
 "react-transition-group@^4.4.0":
   "integrity" "sha512-/RNYfRAMlZwDSr6z4zNKV6xu53/e2BuaBbGhbyYIXTrmgu/bGHzmqOs7mJSJBHy9Ud+ApHx3QjrkKSp1pxvlFg=="
   "resolved" "https://registry.npmjs.org/react-transition-group/-/react-transition-group-4.4.2.tgz"
@@ -9042,7 +9055,7 @@
     "loose-envify" "^1.4.0"
     "prop-types" "^15.6.2"
 
-"react@*", "react@^15.3.0 || ^16.0.0 || ^17.0.0", "react@^16.13.1", "react@^16.3.0", "react@^16.8.0", "react@^16.8.0 || ^17.0.0", "react@>=16.6.0", "react@>=16.8":
+"react@*", "react@^15.3.0 || ^16.0.0 || ^17.0.0", "react@^16.13.1", "react@^16.3.0", "react@^16.8.0", "react@^16.8.0 || ^17.0.0", "react@^16.8.0 || ^17.0.0-0 || ^18.0.0", "react@>=16.6.0", "react@>=16.8":
   "integrity" "sha512-YMZQQq32xHLX0bz5Mnibv1/LHb3Sqzngu7xstSM+vrkE5Kzr9xE0yMByK5kMoTK30YVJE61WfbxIFFvfeDKT1w=="
   "resolved" "https://registry.npmjs.org/react/-/react-16.13.1.tgz"
   "version" "16.13.1"

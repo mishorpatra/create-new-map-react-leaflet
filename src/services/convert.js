@@ -260,7 +260,7 @@ function start(){
 
 // reference points for the building are read from the api and calls start function
 function get_reference_points(){
-  let reference_url=`http://inclunav.apps.iitd.ac.in/node/wayfinding/v1/global-ref/${venue_name}/${building_name}/ground`;
+  let reference_url=`https://inclunav.apps.iitd.ac.in/node/wayfinding/v1/global-ref/${venue_name}/${building_name}/ground`;
   var settings1 = {
     "url": reference_url,
     "method": "GET",
@@ -319,7 +319,7 @@ function getpolygondata(){
   const ldata=poly_data.map(s=>s.properties.floorLength)
   
   for(let i=0;i<=floors.length;i++){
-    let polygon_url=`http://inclunav.apps.iitd.ac.in/node/wayfinding/v1/all-polygons/${venue_name}/${building_name}/${fdata[i]}`;
+    let polygon_url=`https://inclunav.apps.iitd.ac.in/node/wayfinding/v1/all-polygons/${venue_name}/${building_name}/${fdata[i]}`;
     // console.log(polygon_url);
     var settings1 = {
       "url": polygon_url,
@@ -337,7 +337,7 @@ function getpolygondata(){
 function getbuildingdata(){
   // console.log(buildingslist);
   // console.log(buildingslist.length);
-  let building_url=`http://inclunav.apps.iitd.ac.in/node/wayfinding/v1/app/android-navigation/${venue_name}/${building_name}/null`
+  let building_url=`https://inclunav.apps.iitd.ac.in/node/wayfinding/v1/app/android-navigation/${venue_name}/${building_name}/null`
   //console.log('polygon here')
   console.log(building_url);
   var settings1 = {

@@ -5,15 +5,18 @@ import { numToString, stringToNum } from "../services/neumericConvert";
 
 
 
-const useStyle = makeStyles({
+const useStyle = makeStyles(theme => ({
     lift: {
         background: '#787878',
         display: 'flex',
-        flexDirection: 'column',
+        flexDirection: 'column-reverse',
         alignItems: 'center',
         width: 60,
         height: 'max-content',
-        borderRadius: 5
+        borderRadius: 5,
+        [theme.breakpoints.down('sm')]: {
+            width: 40
+        }
     },
     floor: {
         width: 60,
@@ -26,9 +29,13 @@ const useStyle = makeStyles({
         borderRadius: 5,
         '&:hover': {
             background: '#555 !important'
+        },
+        [theme.breakpoints.down('sm')]: {
+            width: 40,
+            height: 40
         }
     }
-})
+}))
 let floors
 let poly_data
 let fdata

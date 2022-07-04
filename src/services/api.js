@@ -5,7 +5,7 @@ import { getGlobalPoints } from './convert'
 
 export const getVenues = async () => {
     try {
-        let response = await axios.post("http://inclunav.apps.iitd.ac.in/node/wayfinding/v1/app/venue-list")
+        let response = await axios.post("https://inclunav.apps.iitd.ac.in/node/wayfinding/v1/app/venue-list")
         return response.data
     } catch(error) {
         console.log('Error while getting the venues ', error)
@@ -36,7 +36,7 @@ export const getRoomsData = async (venue_name, building_name) => {
     
     
     try {
-        let response = await axios.get(`http://inclunav.apps.iitd.ac.in/node/wayfinding/v1/app/android-navigation/${venue_name}/${building_name}/null`)
+        let response = await axios.get(`https://inclunav.apps.iitd.ac.in/node/wayfinding/v1/app/android-navigation/${venue_name}/${building_name}/null`)
         //console.log(response.data)
 
 
@@ -68,19 +68,35 @@ export const getGlobalCoords = (venue_name, building_name, setGlobalCoords, setL
 }
 
 const URL='http://localhost:8000'
-export const sendOtp = async (email) => {
-    const post = { email: email }
+const neo4jURL = 'https://inclunav.apps.iitd.ac.in/node/wayfinding/v1'
+
+export const sendOtp = async (mobile) => {
+    const post = { mobileNumber: mobile }
     try {
-        return await axios.post(`${URL}/user/send-otp`, post)
+        return await axios.post(`https://indoor-otp.herokuapp.com/otp/start-verify`, post)
     } catch(error) {
         console.log('Error while calling the send otp api ', error)
     }
 }
 
+export const checkOtp = async (post) => {
+    try {
+        return await axios.post(`https://indoor-otp.herokuapp.com/otp/check-otp`, post)
+    } catch (error) {
+        console.log('Error while calling the check otp api ', error)
+    }
+}
+
 export const addUser = async (post) => {
+    const data = {
+        email: post.email,
+        mobileNumber: post.mobile,
+        name: post.name,
+        password: post.password,
+    }
     try {
        // console.log(post)
-        return await axios.post(`${URL}/user/save-user`, post)
+        return await axios.post(`${neo4jURL}/user-register`, data)
     } catch(error) {
         console.log(error)
     }
@@ -107,10 +123,24 @@ export const getDevices = async () => {
 
 export const signIn = async (post) => {
     try {
-        let response = await axios.post(`${URL}/user/login`, post)
+        let data = {
+            mobileNumber: post.mobile,
+            mode: "manual",
+            password: post.password
+        }
+        let response = await axios.post(`${neo4jURL}/user-login`, data)
         return response
     } catch(error) {
         console.log('Error while signing in ', error)
+    }
+}
+
+export const locateUser = async (id) => {
+    try {
+        let response = await axios.get(`${URL}/locate/${id}`)
+        return response.data
+    } catch (error) {
+        console.log('Error while locating the user', error)
     }
 }
 

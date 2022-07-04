@@ -64,3 +64,12 @@
   font-weight: bold;
   padding: .8em 1em;
 }
+.MuiAutocomplete-inputRoot[class*="MuiOutlinedInput-root"] {
+  padding: 0 !important;
+}
+.MuiInputBase-input {
+  padding: 0;
+}
+.react-tabs__tab-list {
+  margin: 0 0 0; 
+}

@@ -1,12 +1,14 @@
 import React, {useState, useEffect} from 'react'
-import { Box, makeStyles, InputLabel, MenuItem, FormControl, Select, Typography, AppBar, Toolbar, TextField } from '@material-ui/core'
-import { Menu } from '@material-ui/icons'
+import { Box, makeStyles, InputLabel, MenuItem, FormControl, Select, Typography, AppBar, Toolbar, TextField, Dialog, Button, CircularProgress, Backdrop } from '@material-ui/core'
+import { ArrowBack, ExitToApp } from '@material-ui/icons'
 import Autocomplete, { createFilterOptions } from '@material-ui/lab/Autocomplete';
 import {  getVenues, getRoomsData, getBuildingData, getGlobalCoords } from '../services/api';
+import useWindowDimentions from '../services/getWindowSize'
+import { useNavigate } from 'react-router-dom';
 
 //components
 import GlobalView from './GlobalView';
-import Lift from './Lift'
+import TabView from './TabView';
 
 const useStyles = makeStyles((theme) => ({
     button: {
@@ -65,40 +67,73 @@ const useStyles = makeStyles((theme) => ({
     },
     search: {
         [theme.breakpoints.down('sm')]: {
-            marginTop: 10
+            marginTop: 10,
         },
     },
     navBar: {
         background: '#36e0c2', 
-        opacity: '0.8', 
-        paddingBottom: 5,
+        opacity: '0.8',
         transition: 0.5,
         height: 'max-content',
+        padding: 0,
+        margin: 0,
         [theme.breakpoints.down('sm')]: {
-            display: 'none',
-            padding: '0 0 0 20px'
+            
         }
     },
-    menuIcon: {
-        alignSelf: 'flex-start',
-        margin: '10px 0 0 10px',
+    arrows: {
         display: 'none',
-        zIndex: 99999,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        zIndex: 9999,
         cursor: 'pointer',
         [theme.breakpoints.down('sm')]: {
-            display: 'block'
+            display: 'flex'
         }
-    }
+    },
+    logout: {
+        position: 'fixed',
+        right: '2%',
+        top: '10%',
+        cursor: 'pointer'
+    },
+    dialog: {
+        padding: '25px 35px'
+    },
+    DActions: {
+        marginTop: 40,
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'flex-end'
+    },
+    backdrop: {
+        zIndex: theme.zIndex.drawer + 1,
+        color: '#fff',
+      }
   }));
 
 const initialCords = [ 28.644800, 77.216721]
 const filter = createFilterOptions()
-const Home = () => {
+const Home = ({  }) => {
+
+    const navigate = useNavigate()
+
+   /* useEffect(() => {
+        setUser(JSON.parse(window.sessionStorage.getItem("user")));
+      }, []);*/
+//const navigate = useNavigate()
+
+   //console.log(localStorage)
+   if(!localStorage.user || localStorage.user == 'undefined') navigate('/signin')
+
+    const { width } = useWindowDimentions()
+    
+    
 
     const classes = useStyles();
     const [venue, setVenue] = useState('');
-    const [openVenue, setOpenVenue] = useState(false);
-    const [openBuilding, setOpenBuilding] = useState(false)
+    const [openVenue, setOpenVenue] = useState(true);
+    const [openBuilding, setOpenBuilding] = useState(true)
     const [venues, setVenues] = useState()
     const [building, setBuilding] = useState()
     const [coordinates, setCoordinates] = useState(initialCords)
@@ -108,10 +143,14 @@ const Home = () => {
     const [rooms, setRooms] = useState()
     const [globalCoords, setGlobalCoords] = useState()
     const [landmarks, setLandmarks] = useState()
+    const [open, setOpen] = useState(false)
+    const [backdrop, setBackdrop] = useState(false)
 
     useEffect(() => {
         const fetchVenues = async () => {
+            //setBackdrop(true)
             let response = await getVenues()
+            //setBackdrop(false)
             setVenues(response)
         }
         fetchVenues()
@@ -125,11 +164,13 @@ const Home = () => {
 
     const handleChange = (event) => {
         setVenue(event.target.value)
+        setOpenBuilding(true)
         if(event.target.value.coordinates) setCoordinates([event.target.value.coordinates[0], event.target.value.coordinates[1]])
         setFloorPlan(null)
        // await fetchBuildings(event.target.value.venueName)
     };
     const handleChangeBuilding = async (event) => {
+        setBackdrop(true)
         setBuilding(event.target.value)
         setFloor('ground')
         setValue({title: 'All'})
@@ -138,6 +179,7 @@ const Home = () => {
         response = await getRoomsData(venue.venueName, event.target.value, floor)
         setRooms(response)
         getGlobalCoords(venue.venueName, event.target.value, setGlobalCoords, setLandmarks)
+        setBackdrop(false)
     }
 
     
@@ -162,15 +204,46 @@ const Home = () => {
         const navBar = document.querySelector('#nav_bar').style
         navBar.display = navBar.display == 'none' ? 'block' : 'none' 
     }
+    const handleBack = () => {
+        if(building) setBuilding(null)
+        if(!building && venue) setVenue('')
+    }
 
-    return (
+   const handleLogout = () => {
+        localStorage.clear()
+        navigate('/signin')
+    }
+    return !venues ? <CircularProgress color='#787878' size={25} style={{
+        position: 'absolute',
+        top: '48%',
+        left: '48%'
+    }} /> :
+     (
         <Box className={classes.component}>
-            <Menu className={classes.menuIcon} onClick={() => handleNavBar()}/>
-            <AppBar style={{}} className={classes.navBar} id='nav_bar' >
+            <TabView 
+                venues={venues} 
+                venue={venue}
+                openVenue={openVenue}
+                handleCloseVenue={handleCloseVenue}
+                handleOpenVenue={handleOpenVenue}
+                handleChange={handleChange}
+                building={building}
+                setBuilding={setBuilding}
+                openBuilding={openBuilding}
+                handleCloseBuilding={handleCloseBuilding}
+                handleOpenBuilding={handleOpenBuilding}
+                handleChangeBuilding={handleChangeBuilding}
+                value={value}
+                setValue={setValue}
+            />
+            {/*<AppBar style={{}} className={classes.navBar} id='nav_bar' >
                 <Toolbar>
+            <Box className={classes.arrows} onClick={() => handleBack()} >
+                {venue && <ArrowBack style={{margin: '10px 10px 0 0'}} />}
+            </Box>
             <Box className={classes.inputBx} >
                 <Box className={classes.container}>
-                <FormControl className={classes.formControl}>
+                <FormControl className={classes.formControl} style={{display: (venue && width<958)?'none':'inherit'}} siz>
                     <InputLabel id="demo-controlled-open-select-label">Select Venue</InputLabel>
                     <Select
                     labelId="demo-controlled-open-select-label"
@@ -191,9 +264,9 @@ const Home = () => {
                     }
                     </Select>
                 </FormControl>
-                <Typography className={classes.tag}>{venue.venueName || ""}</Typography>
-                {venue && <FormControl className={classes.formControl}>
-                    <InputLabel id="demo-controlled-open-select-label" color='#fff'>Select Buildings</InputLabel>
+                <Typography className={classes.tag} style={{display: (venue && width<958)?'none':'inherit'}}>{venue.venueName || ""}</Typography>
+                {venue && <FormControl className={classes.formControl} style={{display: (venue && building && width<958)?'none':'inherit'}}>
+                    <InputLabel id="demo-controlled-open-select-label" color='#fff'>Select Building</InputLabel>
                     <Select
                     labelId="demo-controlled-open-select-label"
                     id="demo-controlled-open-select"
@@ -271,7 +344,7 @@ const Home = () => {
                 />}
             </Box>
             </Toolbar>
-            </AppBar>
+            </AppBar>*/}
             {
                 venue &&
                 <GlobalView 
@@ -288,6 +361,31 @@ const Home = () => {
                     landmarks={landmarks} 
                     value={value}/>
             }
+            <ExitToApp className={classes.logout} onClick={() => setOpen(true)} />
+            <Dialog open={open} >
+                <Box className={classes.dialog}>
+                <Typography variant='h6' style={{color: '#f00'}}>Do you want to logout?</Typography>
+                <Box className={classes.DActions}>
+                    <Button onClick={() => setOpen(false)} variant='outlined' size='small' style={{
+                                                                border: '1px solid #36e0c2', 
+                                                                textTransform: 'capitalize', 
+                                                                background: '#fff', 
+                                                                color: '#36e0c2',
+                                                                marginRight: 10
+                                                            }} >Cancel</Button>
+                    <Button onClick={() => handleLogout()} variant='contained' size='small' style={{
+                                                                border: 'none', 
+                                                                textTransform: 'capitalize', 
+                                                                background: '#36e0c2', 
+                                                                color: '#fff', 
+                                                                boxShadow: 'none'
+                                                            }} >Confirm</Button>
+                </Box>
+                </Box>
+            </Dialog>
+            <Backdrop className={classes.backdrop} open={backdrop} >
+                <CircularProgress color="inherit" />
+            </Backdrop>
         </Box>
     )
 }
