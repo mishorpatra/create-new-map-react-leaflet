@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { Box, Typography, TextField, Button, makeStyles, CircularProgress } from '@material-ui/core'
+import { Box, Typography, TextField, Button, makeStyles, CircularProgress, Toolbar, AppBar, Dialog } from '@material-ui/core'
+import { WbSunny, Brightness3 } from '@material-ui/icons'
 import { Link, useNavigate } from 'react-router-dom'
-import { signIn } from '../../services/api'
+import { signIn, addUser } from '../../services/api'
+import jwt_decode from 'jwt-decode'
 
 const useStyle = makeStyles(theme => ({
     component: {
@@ -10,31 +12,50 @@ const useStyle = makeStyles(theme => ({
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        background: '#efefef',
         [theme.breakpoints.down('sm')]: {
             height: '95vh',
-        }
+        },
+        background: '#222'
     },
     container: {
         width: '500px',
         minHeight: '400px',
         borderRadius: 10,
-        background: '#fff',
+        background: 'inherit',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-around',
-        alignItems: 'center',
-        
+        alignItems: 'center'
         
     },
     input: {
-        width: '90%',
+        width: 241,
+        height: 40,
+        borderRadius: 8,
         marginBottom: 15,
+        background: '#27282d',
+        border: '2px solid #fff',
+        color: '#fff',
+        fontSize: 18,
+        padding: '11px 16px 16px 18px',
+        '&:focus': {
+            outline: 'none'
+        }
         
     },
+    form: {
+        display: 'flex',
+        flexDirection: 'column'
+    },
     submit: {
-        color: '#fff',
-        textTransform: 'capitalize'
+        textTransform: 'capitalize',
+        color: '#000',
+        height: 64,
+        width: 276,
+        borderRadius: 8,
+        fontWeight: 700,
+        fontSize: 24,
+        marginBottom: 10
     },
     actions: {
 
@@ -53,6 +74,46 @@ const useStyle = makeStyles(theme => ({
         alignSelf: 'flex-start',
         paddingLeft: 35,
         lineHeight: 0
+    },
+    header: {
+        background: '#27282D'
+    },
+    signup: {
+        width: 180,
+        height: 64,
+        paddign: '16px 9.5px',
+        borderRadius: 8,
+        textTransform: 'capitalize',
+        fontWeight: 700,
+        fontSize: 24
+    },
+    google: {
+        marginTop: 20
+    },
+    footerBtns: {
+        width: 276,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 30,
+        borderTop: '2px solid #fff',
+        paddingTop: 30
+    },
+    forgotPass: {
+        cursor: 'pointer', 
+        color: '#fff', 
+        textDecoration: 'underline',
+    },
+    toolbar: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    alert: {
+        color: '#ff8080',
+        textAlign: 'left',
+        marginBottom: 20
     }
 }))
 
@@ -61,10 +122,12 @@ const initialValues = {
     password: ''
 }
 
-const Login = ({ setUser, user }) => {
+const Login = ({ setUser, user, darkmode, setDarkmode }) => {
     const classes = useStyle()
     const [auth, setAuth] = useState(initialValues)
     const [loading, setLoading] = useState(false)
+    const [open, setOpen] = useState(false)
+    const [success, setSuccess] = useState(false)
 
     /*useEffect(() => {
         window.sessionStorage.setItem("user", user);
@@ -81,35 +144,85 @@ const Login = ({ setUser, user }) => {
         setLoading(true)
         let response = await signIn(auth)
         setLoading(false)
+        console.log(jwt_decode(response.data.token))
         if(!response.data.success) {
-            alert("Incorrect credentials")
+            setOpen(true)
             return
         }
+        setOpen(false)
         setUser(response.data)
-        navigate('/')
-        alert("Logged in successfully")
+        setSuccess(true)
+        setTimeout(() => {
+            navigate('/')
+        }, 1200)
     }
 
     const handleForgotPass = () => {
         
     }
 
+    async function handleCallbackResponse(response) {
+        console.log("Encoded JWT ID token: " + response.credential)
+        var userObject = jwt_decode(response.credential)
+        console.log(userObject)
+        setUser(userObject)
+       await addUser({
+            name: userObject.name,
+            email: userObject.email,
+            mobile: '',
+            password: '',
+        })
+        setSuccess(true)
+        setTimeout(() => {
+            navigate('/')
+        }, 1200)
+    }
+    useEffect(() => {
+        /*global google */
+        
+        google.accounts.id.initialize({
+            client_id: "591935313021-m7bd8lqu77p0eetnt9ru6l9v56kcic6t.apps.googleusercontent.com",
+            callback: handleCallbackResponse
+        })
+
+        google.accounts.id.renderButton(
+            document.getElementById("signInDiv"),
+            { theme: 'outlied', size: 'large' }
+        )
+
+        google.accounts.id.prompt()
+    }, [])
+
     return (
-        <Box className={classes.component}>
-            <Box className={classes.container}>
-                <Typography className={classes.heading} variant='h4'>Welcome to Inclunav! </Typography>
-                <Typography className={classes.subHeading} variant='h6'>Your indoor navigation assistant</Typography>
+        <Box className={classes.component} style={{background: darkmode ? '#222' : '#efefef'}}>
+            <AppBar className={classes.header} style={{background: darkmode ? '#27282d' : '#fff'}}>
+                <Toolbar className={classes.toolbar}>
+                    <Typography></Typography>
+                    <Typography style={{fontSize: 16, fontWeight: 500, textAlign: 'center', color: darkmode ? '#fff' : '#222'}}>SIGN IN/ SIGN-UP</Typography>
+                    <Box style={{cursor: 'pointer'}} onClick={() => setDarkmode(!darkmode)} title={darkmode ? 'switch to lightmode':'switch to darkmode'}>{ !darkmode ? <WbSunny style={{color: darkmode ? '#fff' : '#222'}}  /> : <Brightness3 style={{color: darkmode ? '#fff' : '#222'}} /> }</Box>
+                </Toolbar>
+            </AppBar>
+            <Box className={classes.container} style={{background: !darkmode ? '#efefef' : '#222'}}>
+               
                 <Box className={classes.form}>
-                    <TextField variant='outlined' label="Mobile Number" name='mobile' className={classes.input} onChange={(e) => handleChange(e)} />
-                    <TextField variant='outlined' label="Password" name='password' type='password' className={classes.input} onChange={(e) => handleChange(e)} />
+                    <input title='Enter registered your mobile number' placeholder="Mobile Number" name='mobile' style={{background: darkmode? '#27282d' : '#cdc', color: darkmode ? '#fff': '#222', borderColor: darkmode ? '#fff' : '#2fc8ad'}} className={classes.input} onChange={(e) => handleChange(e)} />
+                    <input title='Enter your password' placeholder="Password" name='password' type='password' style={{background: darkmode? '#27282d' : '#cdc', color: darkmode ? '#fff': '#222', borderColor: darkmode ? '#fff' : '#2fc8ad'}} className={classes.input} onChange={(e) => handleChange(e)} />
                 </Box>
-                {!loading && <Button variant='contained' style={{background: '#36e0c2'}} className={classes.submit} onClick={() => handleSubmit()}>Sign in</Button>}
-                {loading && <Button variant='contained' style={{background: '#36e0c2'}} className={classes.submit}><CircularProgress style={{color: '#fff'}} size={20} /></Button>}
+                <Typography className={classes.alert} style={{display: open ? 'block' : 'none'}} >E-mail ID or password is incorrect.<br /> Please try again</Typography>
+                {!loading && <Button variant='outlined' style={{background: '#2fc8ad', color: darkmode? '#222' : '#fff'}} className={classes.submit} title='sign in' onClick={() => handleSubmit()}>Sign in</Button>}
+                {loading && <Button variant='outlined' style={{background: '#2fc8ad'}} className={classes.submit}><CircularProgress style={{color: darkmode ? '#000': '#fff'}} size={20} /></Button>}
 
                 <Box className={classes.actions}>
-                <Link to='/signup' className={classes.link}><Typography>New user? Sign Up!</Typography></Link>
-                <Typography onClick={() => handleForgotPass()} style={{cursor: 'pointer'}}>Forgot Password?</Typography>
+                <Typography onClick={() => handleForgotPass()} style={{cursor: 'pointer', color: darkmode?'#fff': '#222', textDecoration: 'underline'}}>Forgot Password?</Typography>
+
+                <Box className={classes.footerBtns} style={{borderColor: darkmode ? '#fff' : '#222'}}>
+                    <Button variant='outlined' style={{background: '#2fc8ad', color: darkmode ? '#222' : '#fff'}} className={classes.signup} onClick={() => navigate('/signup')} title='sign up'>Sign-Up</Button>
+                    <Box  className={classes.google} id='signInDiv' title='google sign in'></Box>
                 </Box>
+                </Box>
+                <Dialog open={success} PaperProps={{ style: { borderRadius: 100 }   }}>
+                    <img src="https://i.imgur.com/7nuteoI.gif" />
+                </Dialog>
             </Box>
         </Box>
     )

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Box, makeStyles, Typography } from '@material-ui/core'
+import { Box, makeStyles, Typography, Badge } from '@material-ui/core'
 import { getBuildingData, getRoomsData } from "../services/api";
 import { numToString, stringToNum } from "../services/neumericConvert";
 
@@ -40,9 +40,20 @@ let floors
 let poly_data
 let fdata
 
-const Lift = ({setLevel, level, setFloorPlan, venue, building, setRooms, rooms}) => {
+const Lift = ({setLevel,
+               level, 
+               setFloorPlan, 
+               venue, 
+               building, 
+               setRooms, 
+               rooms, 
+               value,
+               check,
+               setCheck
+            }) => {
     const classes = useStyle()
-    const [floor, setFloor] = useState(0)
+    const [floor, setFloor] = useState(numToString(value?.data?.floor) || 0)
+    
 
    // console.log(floor, level)
 
@@ -69,17 +80,58 @@ const Lift = ({setLevel, level, setFloorPlan, venue, building, setRooms, rooms})
         setFloor(e)
         setLevel(step)
         document.querySelector(`#floor${e}`).style.background='#333'
+       
         let response = await getBuildingData(venue.venueName, building, step)
         setFloorPlan(response)
         response = await getRoomsData(venue.venueName, building, step)
         setRooms(response)
     }
+
+    const handleClickFilter = async (e, step) => {
+        setCheck(true)
+        console.log(e, floor)
+        document.querySelector(`#floor${floor}`).style.background='#787878'
+        setFloor(e)
+        setLevel(step)
+        document.querySelector(`#floor${e}`).style.background='#333'
+       
+        let response = await getBuildingData(venue.venueName, building, step)
+        setFloorPlan(response)
+        response = await getRoomsData(venue.venueName, building, step)
+        setRooms(response)
+    }
+  
+
+   
  
     return (
         <Box className={classes.lift} >
             {
-                newFloors && newFloors.map(data => (
-                    <Box style={{background: data=='ground' && floor==0 ? '#333': '#787878'}} className={classes.floor} id={`floor${numToString(data)}`} onClick={() => handleClick(numToString(data), data)}><Typography>L{numToString(data)}</Typography></Box>
+                 (check || !value?.data) && newFloors && newFloors.map(data => (
+                    <Box 
+                        title={`${data} floor`}
+                        style={{background: data=='ground' && floor==0 ? '#333': '#787878'}} 
+                        className={classes.floor} id={`floor${numToString(data)}`} 
+                        onClick={() => handleClick(numToString(data), data)}>
+                            { value?.data?.floor == data ?
+                                <Badge color="secondary" variant="dot"><Typography>L{numToString(data)}</Typography></Badge> :
+                                <Typography>L{numToString(data)}</Typography>
+                            }
+                    </Box>
+                ))
+            }
+            {
+                !check && value && value.data && newFloors && newFloors.map(data => (
+                    <Box 
+                        title={`${data} floor`}
+                        style={{background: value.data.floor == data ? '#333': '#787878'}} 
+                        className={classes.floor} id={`floor${numToString(data)}`} 
+                        onClick={() => handleClickFilter(numToString(data), data)}>
+                            { value?.data?.floor == data ?
+                                <Badge color="secondary" variant="dot"><Typography>L{numToString(data)}</Typography></Badge> :
+                                <Typography>L{numToString(data)}</Typography>
+                            }
+                    </Box>
                 ))
             }
         </Box>

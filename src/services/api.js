@@ -102,24 +102,24 @@ export const addUser = async (post) => {
     }
 }
 
-export const addDevice = async (device) => {
+/*export const addDevice = async (device) => {
     try {
         const post = { device_code: device }
         return await axios.post(`${URL}/admin/save-device`, post)
     } catch(error) {
         console.log(error)
     }
-}
+}*/
 
-export const getDevices = async () => {
+/*export const getDevice = async (id) => {
     try {
-        let response = await axios.get(`${URL}/admin/all-devices`)
+        let response = await axios.get(`${URL}/user/device/${id}`)
        // console.log(response.data)
         return await response.data
     } catch(error) {
         console.log('Error while getting all devices ', error)
     }
-}
+}*/
 
 export const signIn = async (post) => {
     try {

@@ -3,8 +3,10 @@ import { Map, TileLayer, Marker, Polygon, Polyline, ZoomControl } from 'react-le
 import { Icon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { makeStyles, Box, Typography, Button, Dialog } from '@material-ui/core'
-import { Phone, Email, Language, ArrowBack, RateReview } from '@material-ui/icons'
+import { Phone, Email, Language, ArrowBack, RateReview, LocationSearching, Apartment } from '@material-ui/icons'
 import useWindowDimensions from '../services/getWindowSize';
+import useGeoLocation from '../services/useGeoLocation';
+import axios from 'axios'
 
 
 //components
@@ -39,7 +41,7 @@ const useStyle = makeStyles(theme => ({
     lift: {
       position: 'fixed',
       zIndex: 999,
-      bottom: '19%',
+      bottom: '1%',
       right: '1%'
     },
     dialog: {
@@ -69,6 +71,20 @@ const useStyle = makeStyles(theme => ({
       [theme.breakpoints.down('sm')]: {
         width: '68vw',
         overflow: 'hidden'
+      }
+    },
+    locate: {
+      position: 'fixed',
+      right: '5%',
+      bottom: 30,
+      zIndex: 99999,
+      borderRadius: '50%',
+      minWidth: 45,
+      height: 40,
+      padding: 0,
+      [theme.breakpoints.down('sm')]: {
+        bottom: 50,
+        right: '12%'
       }
     }
   }))
@@ -121,6 +137,10 @@ const beacon = new Icon({
   iconUrl: 'https://i.imgur.com/yRy2aMn.png',
   iconSize: [40, 40]
 })
+const locateIcon = new Icon({
+  iconUrl: 'https://i.imgur.com/HeSTMy6.png',
+  iconSize: [25, 25]
+})
 
 var inx = 0
 
@@ -135,25 +155,42 @@ const GlobalView = ({coordinates,
                     globalCoords, 
                     floor, 
                     landmarks,
-                    value }) => {
+                    value,
+                    darkmode,
+                    setDarkmode,
+                    check,
+                    setCheck,
+                    setBackdrop }) => {
 
     const { width } = useWindowDimensions()
+    //console.log(darkmode)
     
     const mapRef = useRef();
     const classes = useStyle()
+   // console.log(value)
+
+
     //console.log(floor)
     //floorplan && console.log(floorplan.coordinates)
     //console.log(value)
     globalCoords && globalCoords.map(gc => {
       if(gc.floor === floor) inx = globalCoords.indexOf(gc)
     })
-    //landmarks && console.log(landmarks[0])
+    //landmarks && console.log(landmarks)
 
     const [open, setOpen] = useState(false)
     const [landmarkData, setLandmarkData] = useState()
     const [zoom, setZoom] = useState(20)
     const [form, setForm] = useState(false)
-    const handleLandmark = (landmark) => {
+    const [current, setCurrent] = useState(null)
+    const [address, setAddress] = useState()
+
+    const handleLandmark = async (landmark) => {
+      setBackdrop(true)
+      let response = await axios.get(`https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode?f=pjson&langCode=EN&location=${landmark.properties.longitude},${landmark.properties.latitude}`)
+      setBackdrop(false)
+      //console.log(response.data)
+      setAddress(response.data)
       setOpen(true)
       setLandmarkData(landmark)
     }
@@ -162,17 +199,28 @@ const GlobalView = ({coordinates,
       setZoom(e.zoom)
     }
 
+    const location = useGeoLocation()
+
+
+    const showMyLocation = () => {
+      if (location.loaded && !location.error) {
+        if(!current) setCurrent([location.coordinates.lat, location.coordinates.lng])
+        else setCurrent(null)
+      } else {
+        alert(location.error.message);
+      }
+      }
+
    
     return (coordinates && !floorplan)? (
         <Map ref={mapRef} center={coordinates} zoom={defaultZoom} className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2} zoomControl={false}>
             <TileLayer 
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
+              url={ darkmode ? "https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png" : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'} 
               attribution="&copy; <a href=&quot;https://www.openstreetmap.org/copyright&quot;>OpenStreetMap</a> contributors"
               maxZoom={25}
               maxNativeZoom={19}
               />
               <Box style={{marginBottom: 20}}>
-                <ZoomControl position='bottomright'  />
               </Box>
             <Marker map={mapRef} position={coordinates} icon={pin} alt={venue.venueName} />
         </Map>
@@ -185,15 +233,14 @@ const GlobalView = ({coordinates,
           zoom={ width<958 ? defaultZoom+1 : defaultZoom+2 } className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2} zoomControl={false}>
 
             <TileLayer 
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
+              url={ darkmode ? "https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png" : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'} 
               attribution="&copy; <a href=&quot;https://www.openstreetmap.org/copyright&quot;>OpenStreetMap</a> contributors"
               maxZoom={25}
               maxNativeZoom={19}
               />
-            <ZoomControl position='bottomright' />
             
             
-            <Polygon color='#d3cabf' opacity={0.1} fillOpacity={1} weight={1} lineCap="round" lineJoin='round' fill="#dad1c8" positions={
+            <Polygon color={darkmode ? '#404a40' : '#d3cabf'} opacity={0.1} fillOpacity={1} weight={1} lineCap="round" lineJoin='round' fill="#dad1c8" positions={
               [
                 [floorplan.coordinates[0].globalRef.lat, floorplan.coordinates[0].globalRef.lng],
                 [floorplan.coordinates[1].globalRef.lat, floorplan.coordinates[1].globalRef.lng],
@@ -213,13 +260,13 @@ const GlobalView = ({coordinates,
             </Box>
         </Map>
     ): <Map ref={mapRef} 
-            center={[
+            center={current ? [current[0], current[1]] : [
               (parseFloat(floorplan.coordinates[0].globalRef.lat)+parseFloat(floorplan.coordinates[2].globalRef.lat))/2, 
              (parseFloat(floorplan.coordinates[0].globalRef.lng)+parseFloat(floorplan.coordinates[2].globalRef.lng))/2
             ]} 
               zoom={width<958 ? defaultZoom+1 : defaultZoom+2 } className={classes.mapView} scrollWheelZoom={true} dragging={true} duration={2} zoomControl={false} onViewportChange={(e) => handleZoom(e)} >
         <TileLayer 
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
+          url={ darkmode ? "https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png" : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'} 
           attribution="&copy; <a href=&quot;https://www.openstreetmap.org/copyright&quot;>OpenStreetMap</a> contributors"
           maxZoom={25}
           maxNativeZoom={19}
@@ -231,9 +278,8 @@ const GlobalView = ({coordinates,
          } />*/}
 
         
-        <ZoomControl position='bottomright' />
         
-        <Polygon color='#d3cabf' opacity={0.1} fillOpacity={1} weight={1} lineCap="round" lineJoin='round' fill="#dad1c8" positions={
+        <Polygon color={darkmode ? '#444' : '#d3cabf'} opacity={0.1} fillOpacity={1} weight={1} lineCap="round" lineJoin='round' fill="#dad1c8" positions={
           [
             [parseFloat(floorplan.coordinates[0].globalRef.lat)/*-0.00001*/, floorplan.coordinates[0].globalRef.lng],
             [parseFloat(floorplan.coordinates[1].globalRef.lat), floorplan.coordinates[1].globalRef.lng],
@@ -260,22 +306,35 @@ const GlobalView = ({coordinates,
         
       
       {
-        value && landmarks && zoom>19 && landmarks.map(landmark => (
-          landmark.properties.latitude && landmark.floor === floor && landmark.name && <Marker ref={mapRef} position={[landmark.properties.latitude, landmark.properties.longitude]}  alt={landmark.name} onclick={() => handleLandmark(landmark)} icon={
-            landmark.element.type=='Rooms' && (value.title === 'All' || value.title === 'Rooms') ? person :
-            landmark.element.subType=='lift' && (value.title === 'All' || value.title === 'lift') ? lift :
-            landmark.element.subType == 'stairs' && (value.title === 'All' || value.title === 'stairs') ? stairs :
-            landmark.properties.washroomType=='Female' && (value.title === 'All' || value.title === 'restRoom') ? woman :
-            landmark.element.subType == 'drinkingWater' && (value.title === 'All' || value.title === "drinkingWater") ? water :
-            landmark.properties.washroomType=='Male' && (value.title === 'All' || value.title === 'restRoom') ? man : 
-            landmark.element.subType == 'beacons' && zoom>22 ? beacon : noIcon
+         landmarks && zoom>19 && landmarks.map(landmark => (
+          landmark.properties.latitude && landmark.floor === floor && landmark.name && <Marker ref={mapRef} position={[landmark.properties.latitude, landmark.properties.longitude]}  title={landmark.name} onclick={() => handleLandmark(landmark)} icon={
+            landmark.element.type=='Rooms' && (!value || value.title === 'Rooms') ? person :
+            landmark.element.subType=='lift' && (!value ||  value.title === 'lift') ? lift :
+            landmark.element.subType == 'stairs' && (!value || value.title === 'stairs') ? stairs :
+            landmark.properties.washroomType=='Female' && (!value || value.title === 'restRoom') ? woman :
+            landmark.element.subType == 'drinkingWater' && (!value || value.title === "drinkingWater") ? water :
+            landmark.properties.washroomType=='Male' && (!value || value.title === 'restRoom') ? man : 
+            landmark.element.subType == 'beacons' && zoom>22 ? beacon : 
+            value && value.title == landmark.name ? person :
+            noIcon
           } />
 
         ))
       }
+
+          {location.loaded && !location.error && (
+                <Marker
+                  title='My location'
+                  icon={locateIcon}
+                  position={[
+                    location.coordinates.lat,
+                    location.coordinates.lng,
+                  ]}
+                ></Marker>
+          )}
      
 
-        <Box className={classes.lift}>
+        <Box className={classes.lift} style={{bottom: open? '16%': '1%'}}>
           <Lift  
             setLevel={setFloor} 
             level={floor} 
@@ -283,18 +342,23 @@ const GlobalView = ({coordinates,
             venue={venue} 
             building={building} 
             setRooms={setRooms} 
-            rooms={rooms} />
+            rooms={rooms} 
+            value={value}
+            check={check}
+            setCheck={setCheck}
+            />
         </Box>
-        <Box className={classes.dialog} style={{display: open ? 'block' : 'none'}}>
-          <Box style={{position: 'absolute', top: '5%', left: '1%', cursor: 'pointer'}} onClick={() => setOpen(false)}><ArrowBack /></Box>
+        <Box className={classes.dialog} style={{display: open ? 'block' : 'none', background: darkmode ? '#27282d' : '#eee'}}>
+          <Box style={{position: 'absolute', top: '5%', left: '1%', cursor: 'pointer'}} onClick={() => setOpen(false)}><ArrowBack style={{color: darkmode ? '#fff' : '#222'}} /></Box>
             {landmarkData && 
-            <Box>
-              <Typography style={{marginBottom: 5, fontSize: 17, fontWeight: 600}}>{landmarkData.name}</Typography>
+            <Box >
+              <Typography style={{ fontSize: 17, fontWeight: 600, color: darkmode ? '#fff' : '#222'}}>{landmarkData.name}</Typography>
+              <Typography style={{color: darkmode ? '#fff': '#222', marginBottom: 10, padding: '0 10px'}}>{address.address.Match_addr}</Typography>
               <Box className={classes.connect}>
-                {landmarkData.properties.contactNo && <a href={`tel:${landmarkData.properties.contactNo}`} className={classes.option}><Phone /></a>}
-                {landmarkData.properties.email && <a href={`https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=${landmarkData.properties.email}`} target="_blank" className={classes.option}><Email /></a>}
-                {landmarkData.properties.url && <a href={`${landmarkData.properties.url}`} target='_blank' className={classes.option}><Language /></a>}
-                <a className={classes.option} onClick={() => setForm(true)} title='Feedback' ><RateReview /></a>
+                {landmarkData.properties.contactNo && <a href={`tel:${landmarkData.properties.contactNo}`} title='make a call' className={classes.option}><Phone /></a>}
+                {landmarkData.properties.email && <a href={`https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=${landmarkData.properties.email}`} target="_blank" title='send an email' className={classes.option}><Email /></a>}
+                {landmarkData.properties.url && <a href={`${landmarkData.properties.url}`} target='_blank' title='go to there website' className={classes.option}><Language /></a>}
+                <a className={classes.option} title='give a feedback' onClick={() => setForm(true)} ><RateReview /></a>
                 
               </Box>
               {landmarkData.properties.timings && <Typography>{landmarkData.properties.timings}</Typography>}
@@ -308,6 +372,9 @@ const GlobalView = ({coordinates,
                 <Button variant='contained' style={{background: 'green', color: '#fff'}} onClick={() => setForm(false)}>Submit</Button>
               </Box>
         </Dialog>
+        {location && <Button variant='contained' onClick={() => showMyLocation()} className={classes.locate} title={!current ? 'switch to my location' : 'switch to building location'} style={{background: '#222', bottom: open ? '16%':30}} >
+          {!current ? <LocationSearching style={{color: '#fff'}} /> : <Apartment style={{color: '#fff'}} />}
+        </Button>}
     </Map>
 }
 

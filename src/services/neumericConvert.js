@@ -46,3 +46,38 @@ export const stringToNum = (n) => {
     n == 18 ? 'eighteenth' :
     n == 19 ? 'nineteenth' : null
 }
+
+export const camelToTitle = (text) => {
+    const result = text.replace(/([A-Z])/g, " $1");
+    const finalResult = result.charAt(0).toUpperCase() + result.slice(1);
+    return finalResult;
+}
+
+function degreesToRadians(degrees) {
+    return degrees * Math.PI / 180;
+  }
+
+export const findDistance = (lat1, lon1, lat2, lon2) => {
+  var earthRadiusKm = 6371;
+
+  var dLat = degreesToRadians(lat2-lat1);
+  var dLon = degreesToRadians(lon2-lon1);
+
+  lat1 = degreesToRadians(lat1);
+  lat2 = degreesToRadians(lat2);
+
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2); 
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  return earthRadiusKm * c;
+}
+
+export const walkTime = (x) => {      //x is in kilometers
+    var val = Math.round(12*x)
+    if(val == 1) return `${val} min`
+    if(val < 60) return `${val} min`                        //returned value is in miniutes
+    if(val == 60) return `${val/60} hr`
+    if(val > 1440) return `${Math.round(val/1440)} d ${Math.round((val%1440)/60)} h`
+    if(val > 60 && val%60 == 0) return `${Math.round(val/60)} hr`        //returned value is in hours
+    if(val > 60 && val%60 > 0) return `${Math.round(val/60)} hr ${val%60} min`   //returned value in hours and minute
+}
